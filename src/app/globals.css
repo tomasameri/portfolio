@@ -1,26 +1,93 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --color-light-blue: 167 206 203;
+    --color-cool-steel: 139 166 169;
+    --color-dusty-olive: 117 112 78;
+    --color-dry-sage: 202 204 144;
+    --color-lemon-chiffon: 244 235 190;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-lemon-chiffon text-dusty-olive dark:bg-dusty-olive dark:text-lemon-chiffon transition-colors duration-200;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif font-bold text-dusty-olive dark:text-lemon-chiffon;
+  }
+
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl;
+  }
+
+  p {
+    @apply leading-relaxed mb-4;
+  }
+
+  a {
+    @apply transition-colors duration-200;
+  }
+
+  .prose {
+    @apply max-w-none;
+  }
+
+  .prose a {
+    @apply text-dry-sage hover:text-cool-steel dark:text-light-blue dark:hover:text-dry-sage font-medium;
+  }
+
+  .prose h1, 
+  .prose h2, 
+  .prose h3, 
+  .prose h4, 
+  .prose h5, 
+  .prose h6 {
+    @apply text-dusty-olive dark:text-lemon-chiffon;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-lemon-chiffon/30 dark:bg-dusty-olive/30;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-dry-sage/50 rounded-full hover:bg-dry-sage/70 dark:bg-cool-steel/50 dark:hover:bg-cool-steel/70;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center px-6 py-2 rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-dry-sage dark:focus:ring-light-blue;
+  }
+
+  .btn-primary {
+    @apply bg-dry-sage text-dusty-olive hover:bg-cool-steel hover:text-lemon-chiffon dark:bg-light-blue dark:text-dusty-olive dark:hover:bg-cool-steel dark:hover:text-lemon-chiffon;
+  }
+
+  .btn-secondary {
+    @apply bg-cool-steel text-lemon-chiffon hover:bg-light-blue hover:text-dusty-olive dark:bg-dry-sage dark:text-dusty-olive dark:hover:bg-light-blue;
+  }
+
+  .card {
+    @apply bg-white/80 dark:bg-cool-steel/80 backdrop-blur-sm rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg dark:shadow-dusty-olive/10;
+  }
 }
