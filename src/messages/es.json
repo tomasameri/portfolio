@@ -1,0 +1,13 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "about": "Sobre mí",
+    "projects": "Proyectos",
+    "blog": "Blog",
+    "contact": "Contacto"
+  },
+  "home": {
+    "title": "Bienvenido a mi Portafolio",
+    "subtitle": "Soy un desarrollador apasionado"
+  }
+}

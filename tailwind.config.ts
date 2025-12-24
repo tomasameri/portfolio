@@ -14,6 +14,8 @@ const config: Config = {
         'dusty-olive': '#75704e',
         'dry-sage': '#cacc90',
         'lemon-chiffon': '#f4ebbe',
+        'olive-green': '#6b705c',
+        'olive-50': '#f5f5f0',
       },
       fontFamily: {
         sans: ['var(--font-inter)'],

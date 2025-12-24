@@ -1,5 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import { FaGithub, FaLinkedin, FaTwitter, FaYoutube, FaInstagram, FaTiktok } from 'react-icons/fa';
+import { useLocale } from '@/context/LocaleContext';
 
 const socialLinks = [
   { name: 'GitHub', icon: FaGithub, href: 'https://github.com/tomasameri' },
@@ -11,6 +14,8 @@ const socialLinks = [
 ];
 
 export default function Footer() {
+  const { locale } = useLocale();
+
   return (
     <footer className="bg-dusty-olive text-lemon-chiffon">
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
@@ -25,10 +30,10 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
-              <li><Link href="/about" className="text-lemon-chiffon/80 hover:text-white transition-colors">About Me</Link></li>
-              <li><Link href="/projects" className="text-lemon-chiffon/80 hover:text-white transition-colors">Projects</Link></li>
-              <li><Link href="/blog" className="text-lemon-chiffon/80 hover:text-white transition-colors">Blog</Link></li>
-              <li><Link href="/contact" className="text-lemon-chiffon/80 hover:text-white transition-colors">Contact</Link></li>
+              <li><Link href={`/${locale}/about`} className="text-lemon-chiffon/80 hover:text-white transition-colors">About Me</Link></li>
+              <li><Link href={`/${locale}/projects`} className="text-lemon-chiffon/80 hover:text-white transition-colors">Projects</Link></li>
+              <li><Link href={`/${locale}/blog`} className="text-lemon-chiffon/80 hover:text-white transition-colors">Blog</Link></li>
+              <li><Link href={`/${locale}/contact`} className="text-lemon-chiffon/80 hover:text-white transition-colors">Contact</Link></li>
             </ul>
           </div>
           

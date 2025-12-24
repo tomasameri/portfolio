@@ -1,16 +1,26 @@
+'use client';
+
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { FiMenu, FiX, FiSun, FiMoon } from 'react-icons/fi';
+import { useLocale } from '@/context/LocaleContext';
+import type { Messages } from '@/types/messages';
 
-const navigation = [
-  { name: 'Home', href: '/' },
-  { name: 'About', href: '/about' },
-  { name: 'Projects', href: '/projects' },
-  { name: 'Blog', href: '/blog' },
-  { name: 'Contact', href: '/contact' },
+type NavItem = {
+  id: keyof Messages['nav'];
+  href: string;
+};
+
+const navigation: NavItem[] = [
+  { id: 'home', href: '/' },
+  { id: 'about', href: '/about' },
+  { id: 'projects', href: '/projects' },
+  { id: 'blog', href: '/blog' },
+  { id: 'contact', href: '/contact' },
 ];
 
 export default function Header() {
+  const { locale, messages } = useLocale();
   const [isOpen, setIsOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
 
@@ -37,7 +47,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link href="/" className="flex-shrink-0 flex items-center">
+            <Link href={`/${locale}`} className="flex-shrink-0 flex items-center">
               <span className="text-xl font-bold text-dusty-olive dark:text-lemon-chiffon">
                 Tomas Ameri
               </span>
@@ -48,11 +58,11 @@ export default function Header() {
           <nav className="hidden md:ml-6 md:flex md:items-center md:space-x-4">
             {navigation.map((item) => (
               <Link
-                key={item.name}
-                href={item.href}
-                className="px-3 py-2 rounded-md text-sm font-medium text-dusty-olive hover:text-dry-sage dark:text-lemon-chiffon dark:hover:text-light-blue transition-colors"
+                key={item.id}
+                href={`/${locale}${item.href}`}
+                className="px-3 py-2 rounded-md text-sm font-medium text-dusty-olive hover:text-olive-green dark:text-lemon-chiffon dark:hover:text-white"
               >
-                {item.name}
+                {messages.nav[item.id as keyof typeof messages.nav]}
               </Link>
             ))}
             <button
@@ -84,12 +94,12 @@ export default function Header() {
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             {navigation.map((item) => (
               <Link
-                key={item.name}
-                href={item.href}
-                className="block px-3 py-2 rounded-md text-base font-medium text-dusty-olive hover:bg-light-blue/10 dark:text-lemon-chiffon dark:hover:bg-cool-steel/50"
+                key={item.id}
+                href={`/${locale}${item.href}`}
+                className="block px-3 py-2 rounded-md text-base font-medium text-dusty-olive hover:text-olive-green hover:bg-olive-50 dark:text-lemon-chiffon dark:hover:bg-cool-steel"
                 onClick={() => setIsOpen(false)}
               >
-                {item.name}
+                {messages.nav[item.id as keyof typeof messages.nav]}
               </Link>
             ))}
             <button
