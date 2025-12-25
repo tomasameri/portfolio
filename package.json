@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build && node scripts/postbuild.js",
     "start": "next start",
+    "start:dist": "cd dist && npm install --production && npm start",
     "lint": "eslint"
   },
   "dependencies": {

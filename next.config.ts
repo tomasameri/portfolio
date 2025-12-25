@@ -3,6 +3,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
+  // Configuración para Appwrite Sites
+  output: 'standalone',
   images: {
     remotePatterns: [
       {
@@ -13,10 +15,14 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     serverActions: {
-      allowedOrigins: ['localhost'],
+      allowedOrigins: [
+        'localhost',
+        '*.appwrite.network',
+        '*.appwrite.io',
+        'cloud.appwrite.io',
+      ],
     },
   },
-  // Remove i18n configuration as it's not needed for App Router
 };
 
 export default nextConfig;

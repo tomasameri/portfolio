@@ -1,0 +1,9 @@
+{
+  "projectId": "693323540020aab7b045",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "npm install",
+  "devCommand": "npm run dev",
+  "framework": "nextjs"
+}
+

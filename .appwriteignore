@@ -1,0 +1,15 @@
+# Appwrite ignore file
+# Files and directories to exclude from deployment
+
+node_modules/
+.next/
+dist/
+.git/
+.env*.local
+*.log
+.DS_Store
+*.tsbuildinfo
+coverage/
+.vscode/
+.idea/
+

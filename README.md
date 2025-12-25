@@ -88,7 +88,63 @@ See `.env.local.example` for reference.
 
 **⚠️ Important for Production/Deploy:**
 
-When deploying to production (Vercel, Netlify, etc.), you **MUST** configure these environment variables in your hosting platform's dashboard:
+### Appwrite Sites Deployment
+
+This project is configured for deployment on **Appwrite Sites**. The configuration is in `appwrite.json`.
+
+**⚠️ IMPORTANT: Setup Steps**
+
+1. **Complete Platform Setup in Appwrite Console**:
+   - Go to Appwrite Console → Get Started
+   - Click on "Connect your platform" → Select "Web"
+   - **Click "Skip, go to dashboard"** (you already have a project, no need to clone starter kit)
+   - This just marks the platform as configured - you don't need to clone anything
+
+2. **Create a Site**:
+   - In Appwrite Console → Your Project → **Deploy** → **Sites**
+   - Click **Create Site**
+   - Enter a name (e.g., "portfolio-site")
+   - Connect your Git repository (GitHub, GitLab, Bitbucket, etc.)
+
+3. **Configure Environment Variables in Appwrite Sites**:
+   - Go to your Site → **Settings** → **Environment Variables**
+   - Add all these variables (copy from your `.env.local`):
+     ```
+     NEXT_PUBLIC_APPWRITE_ENDPOINT=https://nyc.cloud.appwrite.io/v1
+     NEXT_PUBLIC_APPWRITE_PROJECT_ID=693323540020aab7b045
+     NEXT_PUBLIC_APPWRITE_DATABASE_ID=694d8c8c00144fb71a7b
+     NEXT_PUBLIC_APPWRITE_CARDS_COLLECTION_ID=cards
+     NEXT_PUBLIC_APPWRITE_BLOG_COLLECTION_ID=blogposts
+     NEXT_PUBLIC_APPWRITE_STORAGE_BUCKET_ID=694d8d5500037f02535b
+     APPWRITE_API_KEY=your-api-key-here
+     ```
+   - **Important**: Use the full Collection IDs (not just names like "cards")
+   - **Important**: `APPWRITE_API_KEY` does NOT have `NEXT_PUBLIC_` prefix
+
+4. **Deploy Settings** (auto-detected from `appwrite.json`):
+   - Build Command: `npm run build`
+   - Output Directory: `dist`
+   - Install Command: `npm install`
+   - Framework: `nextjs`
+
+5. **Add Production Domain to Appwrite Project** (⚠️ CRITICAL for CORS):
+   - Go to Appwrite Console → Your Project → **Settings** → **Platforms**
+   - Click **Add Platform** → Select **Web**
+   - Enter your production domain:
+     - For Appwrite Sites: `https://your-site-name.appwrite.network` (the URL provided by Appwrite Sites)
+     - For custom domains: `https://yourdomain.com`
+   - Click **Save**
+   - **Important**: Without this step, you'll get CORS errors when trying to authenticate or access Appwrite APIs from production
+
+6. **Deploy**:
+   - Push your code to the connected Git repository
+   - Appwrite will automatically trigger a build
+   - Check deployment logs if there are issues
+   - Once deployed, your site will be available at the provided URL
+
+### Other Hosting Platforms
+
+For other platforms (Vercel, Netlify, etc.), you **MUST** configure these environment variables in your hosting platform's dashboard:
 
 1. **Vercel**: Go to Project Settings → Environment Variables
 2. **Netlify**: Go to Site Settings → Environment Variables
@@ -103,8 +159,12 @@ The variables needed are:
 - `NEXT_PUBLIC_APPWRITE_CARDS_COLLECTION_ID`
 - `NEXT_PUBLIC_APPWRITE_BLOG_COLLECTION_ID`
 - `NEXT_PUBLIC_APPWRITE_STORAGE_BUCKET_ID`
+- `APPWRITE_API_KEY` (optional, for server-side operations)
 
-**Note**: Since these variables start with `NEXT_PUBLIC_`, they will be exposed to the browser. This is safe for Appwrite as it uses API keys and permissions for security, not secret keys.
+**Important Notes:**
+- Variables starting with `NEXT_PUBLIC_` are exposed to the browser. This is safe for Appwrite as it uses permissions for security.
+- `APPWRITE_API_KEY` does NOT have `NEXT_PUBLIC_` prefix because it's a secret key. It's only available server-side.
+- The API key bypasses permissions and should only be used in API routes or Server Components, never in client components.
 
 ### Migrating Data
 

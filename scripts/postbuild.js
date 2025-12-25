@@ -32,12 +32,26 @@ function copyRecursiveSync(src, dest) {
   }
 }
 
-// Copiar .next a dist/.next
+// Para modo standalone, Next.js crea .next/standalone y .next/static
 const nextDir = path.join(process.cwd(), '.next');
-const distNextDir = path.join(distDir, '.next');
+const standaloneDir = path.join(nextDir, 'standalone');
+const staticDir = path.join(nextDir, 'static');
 
-if (fs.existsSync(nextDir)) {
-  // Eliminar dist/.next si existe antes de copiar
+// Si existe standalone (modo standalone), copiar estructura completa
+if (fs.existsSync(standaloneDir)) {
+  // Copiar standalone completo a dist
+  copyRecursiveSync(standaloneDir, distDir);
+  console.log('✓ Copied .next/standalone to dist/');
+  
+  // Copiar static a dist/.next/static (necesario para assets)
+  const distStaticDir = path.join(distDir, '.next', 'static');
+  if (fs.existsSync(staticDir)) {
+    copyRecursiveSync(staticDir, distStaticDir);
+    console.log('✓ Copied .next/static to dist/.next/static');
+  }
+} else if (fs.existsSync(nextDir)) {
+  // Fallback: copiar .next completo (modo normal)
+  const distNextDir = path.join(distDir, '.next');
   if (fs.existsSync(distNextDir)) {
     fs.rmSync(distNextDir, { recursive: true, force: true });
   }
@@ -56,16 +70,24 @@ if (fs.existsSync(publicDir)) {
   console.log('✓ Copied public to dist/public');
 }
 
-// Copiar package.json y otros archivos necesarios
-const filesToCopy = ['package.json'];
+// Copiar package.json y otros archivos necesarios para Appwrite Sites
+const filesToCopy = ['package.json', 'next.config.ts', 'tsconfig.json'];
 filesToCopy.forEach(file => {
   const src = path.join(process.cwd(), file);
   const dest = path.join(distDir, file);
   if (fs.existsSync(src)) {
-    fs.copyFileSync(src, dest);
+    copyRecursiveSync(src, dest);
     console.log(`✓ Copied ${file} to dist/`);
   }
 });
+
+// Copiar node_modules/.cache si existe (necesario para standalone)
+const nodeModulesCache = path.join(process.cwd(), 'node_modules', '.cache');
+const distNodeModulesCache = path.join(distDir, 'node_modules', '.cache');
+if (fs.existsSync(nodeModulesCache)) {
+  copyRecursiveSync(nodeModulesCache, distNodeModulesCache);
+  console.log('✓ Copied node_modules/.cache to dist/');
+}
 
 // Crear un archivo .next en dist que apunte al directorio .next de la raíz
 // Esto permite que next start funcione desde dist
