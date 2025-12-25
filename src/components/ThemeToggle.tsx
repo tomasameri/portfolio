@@ -1,38 +1,44 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { FiSun, FiMoon } from 'react-icons/fi';
+import { useTheme } from '@/context/ThemeContext';
 
 export default function ThemeToggle() {
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode, toggleDarkMode } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const isDark = localStorage.theme === 'dark' || 
-        (!('theme' in localStorage) && 
-        window.matchMedia('(prefers-color-scheme: dark)').matches);
-      setDarkMode(isDark);
-      document.documentElement.classList.toggle('dark', isDark);
-    }
+    setMounted(true);
   }, []);
 
-  const toggleDarkMode = () => {
-    const newDarkMode = !darkMode;
-    setDarkMode(newDarkMode);
-    localStorage.theme = newDarkMode ? 'dark' : 'light';
-    document.documentElement.classList.toggle('dark', newDarkMode);
+  const handleClick = () => {
+    toggleDarkMode();
   };
+
+  if (!mounted) {
+    // Return a placeholder during SSR to prevent hydration mismatch
+    return (
+      <button
+        className="fixed top-4 right-4 z-50 p-3 rounded-full bg-alice-blue dark:bg-gunmetal shadow-lg border border-dust-grey/30 dark:border-pale-sky/15"
+        aria-label="Toggle dark mode"
+        disabled
+      >
+        <FiMoon className="h-5 w-5 text-gunmetal dark:text-pale-sky" />
+      </button>
+    );
+  }
 
   return (
     <button
-      onClick={toggleDarkMode}
-      className="fixed top-4 right-4 z-50 p-3 rounded-full bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all"
+      onClick={handleClick}
+      className="fixed top-4 right-4 z-50 p-3 rounded-full bg-alice-blue dark:bg-gunmetal shadow-lg border border-dust-grey/30 dark:border-pale-sky/15 hover:border-cool-sky/50 dark:hover:border-cool-sky/30 hover:shadow-xl transition-all"
       aria-label="Toggle dark mode"
     >
       {darkMode ? (
-        <FiSun className="h-5 w-5 text-gray-700 dark:text-yellow-400" />
+        <FiSun className="h-5 w-5 text-pale-sky hover:text-cool-sky transition-colors" />
       ) : (
-        <FiMoon className="h-5 w-5 text-gray-700" />
+        <FiMoon className="h-5 w-5 text-gunmetal hover:text-cool-sky transition-colors" />
       )}
     </button>
   );

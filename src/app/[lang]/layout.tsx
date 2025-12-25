@@ -1,4 +1,6 @@
 import { LocaleProvider } from "@/context/LocaleContext";
+import { ThemeProvider } from "@/context/ThemeContext";
+import { AuthProvider } from "@/context/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
 
 export async function generateStaticParams() {
@@ -16,13 +18,17 @@ export default async function LangLayout({
   const locale = lang && ['en', 'es'].includes(lang) ? lang : 'en';
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
-      <LocaleProvider lang={locale}>
-        <ThemeToggle />
-        <main>
-          {children}
-        </main>
-      </LocaleProvider>
+    <div className="min-h-screen bg-pale-sky dark:bg-gunmetal">
+      <ThemeProvider>
+        <AuthProvider>
+          <LocaleProvider lang={locale}>
+            <ThemeToggle />
+            <main>
+              {children}
+            </main>
+          </LocaleProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </div>
   );
 }

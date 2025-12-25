@@ -1,90 +1,54 @@
 // src/app/[lang]/page.tsx
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useLocale } from "@/context/LocaleContext";
 import Sidebar from "@/components/Sidebar";
 import BentoGrid from "@/components/BentoGrid";
 import { BentoCard } from "@/types/bento";
-import { FaGithub, FaLinkedin, FaTwitter, FaYoutube, FaInstagram, FaTiktok } from 'react-icons/fa';
+import { getCards } from "@/lib/services/cardsService";
 
 export default function Home() {
   const { locale } = useLocale();
+  const [cards, setCards] = useState<BentoCard[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Configuración de las cards del bento grid
-  const cards: BentoCard[] = [
-    {
-      id: 'github',
-      type: 'social',
-      size: 'small',
-      title: 'My Github',
-      description: 'Check out my code and projects',
-      url: 'https://github.com/tomasameri',
-      icon: '🐙',
-    },
-    {
-      id: 'linkedin',
-      type: 'social',
-      size: 'small',
-      title: "Let's Connect",
-      description: 'linkedin.com/in/tomasameri',
-      url: 'https://linkedin.com/in/tomasameri',
-      icon: '💼',
-    },
-    {
-      id: 'twitter',
-      type: 'social',
-      size: 'wide',
-      title: 'Twitter',
-      description: '@toto_visiora | CTO & Co-Founder @Visiora_ai | 22 | BA | Exploring AI, Tech & Design',
-      url: 'https://twitter.com/toto_visiora',
-      icon: '🐦',
-    },
-    {
-      id: 'tiktok',
-      type: 'social',
-      size: 'small',
-      title: 'TikTok (Personal)',
-      description: '@tomiameri',
-      url: 'https://tiktok.com/@tomiameri',
-      icon: '🎵',
-    },
-    {
-      id: 'instagram',
-      type: 'social',
-      size: 'small',
-      title: 'Instagram (Personal)',
-      description: '@tomiameri',
-      url: 'https://instagram.com/tomiameri',
-      icon: '📸',
-    },
-    {
-      id: 'visiora',
-      type: 'link',
-      size: 'small',
-      title: 'My Startup',
-      description: 'visiora.ai',
-      url: 'https://visiora.ai',
-      icon: '🚀',
-    },
-    {
-      id: 'youtube-toto',
-      type: 'youtube',
-      size: 'large',
-      title: 'Toto (Just me playing some music)',
-      description: 'Music sessions and covers',
-      url: 'https://youtube.com/@totoameri',
-      icon: '🎸',
-    },
-    {
-      id: 'youtube-tomi',
-      type: 'youtube',
-      size: 'large',
-      title: 'Tomi (Tech content & More)',
-      description: 'Tech content, tutorials and more',
-      url: 'https://youtube.com/@tomiameri',
-      icon: '💻',
-    },
-  ];
+  useEffect(() => {
+    loadCards();
+  }, []);
+
+  const loadCards = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const fetchedCards = await getCards();
+      setCards(fetchedCards);
+    } catch (err) {
+      console.error('Error loading cards:', err);
+      setError('Error al cargar las cards');
+      // Fallback a cards vacías en caso de error
+      setCards([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen py-12 flex items-center justify-center">
+        <div className="text-gunmetal dark:text-pale-sky">Cargando...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen py-12 flex items-center justify-center">
+        <div className="text-red-500">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-12">
@@ -95,7 +59,18 @@ export default function Home() {
 
           {/* Bento Grid */}
           <div className="flex-1">
-            <BentoGrid cards={cards} />
+            {cards.length > 0 ? (
+              <BentoGrid cards={cards} />
+            ) : !loading ? (
+              <div className="text-center py-12 text-gunmetal/70 dark:text-pale-sky/70">
+                <p className="mb-2">No hay cards disponibles.</p>
+                <p className="text-sm">
+                  {process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID 
+                    ? 'Crea algunas cards desde el panel de administración.'
+                    : 'Configura Appwrite en tu archivo .env.local para comenzar.'}
+                </p>
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

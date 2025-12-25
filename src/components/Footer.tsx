@@ -17,28 +17,28 @@ export default function Footer() {
   const { locale } = useLocale();
 
   return (
-    <footer className="bg-dusty-olive text-lemon-chiffon">
+    <footer className="bg-gunmetal dark:bg-gunmetal text-pale-sky dark:text-pale-sky border-t border-pale-sky/10 dark:border-pale-sky/10">
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h3 className="text-lg font-semibold mb-4">Tomas Ameri</h3>
-            <p className="text-lemon-chiffon/80">
+            <h3 className="text-lg font-semibold mb-4 text-alice-blue dark:text-alice-blue">Tomas Ameri</h3>
+            <p className="text-pale-sky/70 dark:text-pale-sky/70">
               Exploring the intersection of AI, technology, and design.
             </p>
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+            <h3 className="text-lg font-semibold mb-4 text-alice-blue dark:text-alice-blue">Quick Links</h3>
             <ul className="space-y-2">
-              <li><Link href={`/${locale}/about`} className="text-lemon-chiffon/80 hover:text-white transition-colors">About Me</Link></li>
-              <li><Link href={`/${locale}/projects`} className="text-lemon-chiffon/80 hover:text-white transition-colors">Projects</Link></li>
-              <li><Link href={`/${locale}/blog`} className="text-lemon-chiffon/80 hover:text-white transition-colors">Blog</Link></li>
-              <li><Link href={`/${locale}/contact`} className="text-lemon-chiffon/80 hover:text-white transition-colors">Contact</Link></li>
+              <li><Link href={`/${locale}/about`} className="text-pale-sky/70 dark:text-pale-sky/70 hover:text-cool-sky dark:hover:text-cool-sky transition-colors">About Me</Link></li>
+              <li><Link href={`/${locale}/projects`} className="text-pale-sky/70 dark:text-pale-sky/70 hover:text-cool-sky dark:hover:text-cool-sky transition-colors">Projects</Link></li>
+              <li><Link href={`/${locale}/blog`} className="text-pale-sky/70 dark:text-pale-sky/70 hover:text-cool-sky dark:hover:text-cool-sky transition-colors">Blog</Link></li>
+              <li><Link href={`/${locale}/contact`} className="text-pale-sky/70 dark:text-pale-sky/70 hover:text-cool-sky dark:hover:text-cool-sky transition-colors">Contact</Link></li>
             </ul>
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4">Connect</h3>
+            <h3 className="text-lg font-semibold mb-4 text-alice-blue dark:text-alice-blue">Connect</h3>
             <div className="flex space-x-4">
               {socialLinks.map((item) => {
                 const Icon = item.icon;
@@ -48,7 +48,7 @@ export default function Footer() {
                     href={item.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-lemon-chiffon/80 hover:text-white transition-colors"
+                    className="text-pale-sky/70 dark:text-pale-sky/70 hover:text-cool-sky dark:hover:text-cool-sky transition-colors"
                     aria-label={item.name}
                   >
                     <Icon className="h-6 w-6" />
@@ -61,7 +61,7 @@ export default function Footer() {
                 href="https://visiora.ai" 
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center text-lemon-chiffon/80 hover:text-white transition-colors"
+                className="inline-flex items-center text-pale-sky/70 dark:text-pale-sky/70 hover:text-cool-sky dark:hover:text-cool-sky transition-colors"
               >
                 <span>Visit my startup: Visiora AI</span>
                 <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -72,8 +72,8 @@ export default function Footer() {
           </div>
         </div>
         
-        <div className="mt-12 pt-8 border-t border-lemon-chiffon/20">
-          <p className="text-center text-sm text-lemon-chiffon/60">
+        <div className="mt-12 pt-8 border-t border-pale-sky/10 dark:border-pale-sky/10">
+          <p className="text-center text-sm text-pale-sky/50 dark:text-pale-sky/50">
             &copy; {new Date().getFullYear()} Tomas Ameri. All rights reserved.
           </p>
         </div>

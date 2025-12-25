@@ -21,38 +21,28 @@ export default function Sidebar() {
       <div className="sticky top-8 space-y-8">
         {/* Profile Image */}
         <div className="flex justify-center md:justify-start">
-          <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800">
-            <Image
-              src="/profile.jpg"
-              alt="Tomas Ameri"
-              fill
-              className="object-cover"
-              onError={(e) => {
-                // Fallback si no hay imagen
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-                const parent = target.parentElement;
-                if (parent && !parent.querySelector('.fallback-initials')) {
-                  const fallback = document.createElement('div');
-                  fallback.className = 'fallback-initials w-full h-full flex items-center justify-center text-4xl font-bold text-gray-400 dark:text-gray-500';
-                  fallback.textContent = 'TA';
-                  parent.appendChild(fallback);
-                }
-              }}
-            />
+              <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-2 border-dust-grey/40 dark:border-pale-sky/15 bg-alice-blue dark:bg-gunmetal shadow-sm">
+                <Image
+                  src="/imagen perfil.jpeg"
+                  alt="Tomas Ameri"
+                  fill
+                  sizes="(max-width: 768px) 128px, 160px"
+                  className="object-cover"
+                  priority
+                />
           </div>
         </div>
 
         {/* Name */}
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-3xl md:text-4xl font-bold text-gunmetal dark:text-alice-blue">
             Tomas Ameri
           </h1>
         </div>
 
         {/* Quote */}
-        <div className="border-l-2 border-gray-300 dark:border-gray-600 pl-4">
-          <p className="text-gray-600 dark:text-gray-300 italic text-sm md:text-base leading-relaxed">
+        <div className="border-l-2 border-cool-sky/40 dark:border-cool-sky/30 pl-4">
+          <p className="text-gunmetal/70 dark:text-pale-sky/80 italic text-sm md:text-base leading-relaxed">
             &quot;{quote}&quot;
           </p>
         </div>
@@ -65,9 +55,9 @@ export default function Sidebar() {
               <Link
                 key={item.id}
                 href={`/${locale}${item.href}`}
-                className="flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group"
+                className="flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gunmetal dark:text-pale-sky hover:bg-dust-grey/20 dark:hover:bg-pale-sky/10 hover:text-cool-sky dark:hover:text-cool-sky transition-colors group"
               >
-                <Icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                <Icon className="w-5 h-5 text-gunmetal dark:text-pale-sky group-hover:text-cool-sky dark:group-hover:text-cool-sky group-hover:scale-110 transition-all" />
                 <span className="font-medium text-sm">
                   {messages.nav[item.id as keyof typeof messages.nav]}
                 </span>

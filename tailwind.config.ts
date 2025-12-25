@@ -9,17 +9,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        'light-blue': '#a7cecb',
-        'cool-steel': '#8ba6a9',
-        'dusty-olive': '#75704e',
-        'dry-sage': '#cacc90',
-        'lemon-chiffon': '#f4ebbe',
-        'olive-green': '#6b705c',
-        'olive-50': '#f5f5f0',
+        'alice-blue': '#e8eef2',
+        'dust-grey': '#d6c9c9',
+        'pale-sky': '#c7d3dd',    // Light/Claro
+        'cool-sky': '#77b6ea',
+        'gunmetal': '#37393a',     // Dark/Oscuro
       },
       fontFamily: {
-        sans: ['var(--font-inter)'],
-        serif: ['var(--font-merriweather)'],
+        sans: ['var(--font-anonymous-pro)', 'monospace'],
       },
     },
   },
