@@ -54,7 +54,6 @@ export async function getCards(): Promise<BentoCard[]> {
     
     if (!databaseId || !collectionId) {
       // Silenciosamente retornar array vacío si no está configurado
-      // Esto es normal si las variables de entorno no están configuradas aún
       return [];
     }
 
@@ -71,7 +70,6 @@ export async function getCards(): Promise<BentoCard[]> {
     return cards.map(documentToCard);
   } catch (error: any) {
     console.error('Error fetching cards:', error);
-    // Si es un error de configuración, retornar array vacío en lugar de lanzar error
     if (error?.code === 0 || error?.message?.includes('Route not found')) {
       console.warn('Appwrite not configured or route not found. Returning empty array.');
       return [];
@@ -102,7 +100,6 @@ export async function createCard(card: Omit<BentoCard, 'id'>, order: number): Pr
     return documentToCard(response as unknown as CardDocument);
   } catch (error: any) {
     console.error('Error creating card:', error);
-    // Re-lanzar con más contexto
     if (error.code === 404) {
       const databaseId = getDatabaseId();
       const collectionId = getCardsCollectionId();
@@ -184,4 +181,3 @@ export async function reorderCards(cardOrders: { cardId: string; order: number }
     throw error;
   }
 }
-

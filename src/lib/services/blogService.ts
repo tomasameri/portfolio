@@ -258,4 +258,3 @@ export async function deletePost(postId: string): Promise<void> {
     throw error;
   }
 }
-

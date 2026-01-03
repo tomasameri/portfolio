@@ -1,3 +1,4 @@
+// src/context/AuthContext.tsx
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
@@ -11,7 +12,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
-  checkSession: () => Promise<void>;
+  checkSession: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,19 +22,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Verificar sesión al cargar
-  const checkSession = async () => {
+  const checkSession = async (): Promise<boolean> => {
     try {
       setLoading(true);
       setError(null);
       const session = await account.get();
       setUser(session);
+      return true;
     } catch (err) {
-      setUser(null);
-      // No mostrar error si simplemente no hay sesión
-      if (err instanceof Error && !err.message.includes('session')) {
+      // 401 is expected when there's no session
+      if (err instanceof Error && err.message.includes('401')) {
+        setUser(null);
+        return false;
+      }
+      // For other errors, log them and return false
+      if (err instanceof Error) {
+        console.error('Error checking session:', err);
         setError(err.message);
       }
+      setUser(null);
+      return false;
     } finally {
       setLoading(false);
     }
@@ -47,18 +55,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true);
       setError(null);
-      // Crear sesión de email/password
       await account.createEmailPasswordSession(email, password);
-      // Obtener información del usuario
       const session = await account.get();
       setUser(session);
-      setLoading(false);
-    } catch (err: any) {
-      setLoading(false);
+    } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al iniciar sesión';
       setError(errorMessage);
-      // Re-lanzar el error para que el componente pueda manejarlo
       throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -82,7 +87,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       setError(null);
       await account.create('unique()', email, password, name);
-      // Después de crear la cuenta, iniciar sesión automáticamente
       await login(email, password);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al registrar usuario';
@@ -117,4 +121,3 @@ export function useAuth() {
   }
   return context;
 }
-
