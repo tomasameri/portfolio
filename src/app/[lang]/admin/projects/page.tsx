@@ -1,12 +1,9 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import CardManagerRGL from '@/components/admin/CardManagerRGL';
+import ProjectList from '@/components/admin/ProjectList';
 
-export default function AdminCardsPage() {
-  const router = useRouter();
-
+export default function AdminProjectsPage() {
   return (
     <div className="min-h-screen bg-pale-sky dark:bg-gunmetal py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -18,7 +15,7 @@ export default function AdminCardsPage() {
             ← Volver al Dashboard
           </Link>
         </div>
-        <CardManagerRGL />
+        <ProjectList />
       </div>
     </div>
   );

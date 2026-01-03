@@ -15,12 +15,21 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const isDark = 
-        localStorage.theme === 'dark' || 
-        (!('theme' in localStorage) && 
-        window.matchMedia('(prefers-color-scheme: dark)').matches);
+      // Leer el tema guardado o usar la preferencia del sistema
+      const storedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      
+      const isDark = storedTheme === 'dark' || (!storedTheme && prefersDark);
+      
       setDarkMode(isDark);
-      document.documentElement.classList.toggle('dark', isDark);
+      
+      // Aplicar la clase dark al elemento html
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      
       setMounted(true);
     }
   }, []);
@@ -32,6 +41,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       const newDarkMode = !prev;
       localStorage.setItem('theme', newDarkMode ? 'dark' : 'light');
       
+      // Aplicar o remover la clase dark del elemento html
       if (newDarkMode) {
         document.documentElement.classList.add('dark');
       } else {

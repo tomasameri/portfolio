@@ -36,9 +36,31 @@ Appwrite offers a generous free tier that covers all the needs of this portfolio
 
 1. Create an account at [Appwrite Cloud](https://cloud.appwrite.io) or set up a self-hosted instance
 2. Create a new project
-3. Create a database and two collections:
+3. Create a database and three collections:
    - `cards`: For managing social media cards
    - `blogPosts`: For blog posts
+   - `projects`: For portfolio projects
+
+#### 🚀 Quick Setup (Automated)
+
+**Recommended:** Use the automated setup script to configure all collection attributes:
+
+1. Get your Appwrite API Key:
+   - Go to **Appwrite Console → Settings → API Keys**
+   - Create a new API Key with **"Administrator"** permissions
+   - Copy the generated key
+
+2. Add the API Key to your `.env.local`:
+   ```bash
+   APPWRITE_API_KEY=your-api-key-here
+   ```
+
+3. Run the setup script:
+   ```bash
+   npx tsx scripts/setupCollections.ts
+   ```
+
+This will automatically create all required attributes for both collections. See `APPWRITE_SETUP.md` for manual setup instructions if needed.
 
 #### Database Schema
 
@@ -68,9 +90,25 @@ Appwrite offers a generous free tier that covers all the needs of this portfolio
 - `createdAt` (datetime)
 - `updatedAt` (datetime)
 
+**Collection: `projects`**
+- `id` (string, auto-generated)
+- `title` (string)
+- `slug` (string, unique)
+- `description` (string)
+- `longDescription` (string, optional)
+- `technologies` (string, JSON array)
+- `image` (string, optional)
+- `url` (string, optional)
+- `githubUrl` (string, optional)
+- `featured` (boolean)
+- `order` (integer)
+- `createdAt` (datetime)
+- `updatedAt` (datetime)
+
 **Permissions:**
 - Cards: Read for everyone, Write for authenticated users
 - Blog Posts: Read for published posts, Write for authenticated users
+- Projects: Read for everyone, Write for authenticated users
 
 4. Create a Storage bucket for images and files (optional but recommended)
 5. Configure environment variables in `.env.local`:
@@ -81,7 +119,9 @@ NEXT_PUBLIC_APPWRITE_PROJECT_ID=your-project-id
 NEXT_PUBLIC_APPWRITE_DATABASE_ID=your-database-id
 NEXT_PUBLIC_APPWRITE_CARDS_COLLECTION_ID=your-cards-collection-id
 NEXT_PUBLIC_APPWRITE_BLOG_COLLECTION_ID=your-blog-collection-id
+NEXT_PUBLIC_APPWRITE_PROJECTS_COLLECTION_ID=your-projects-collection-id
 NEXT_PUBLIC_APPWRITE_STORAGE_BUCKET_ID=your-storage-bucket-id
+APPWRITE_API_KEY=your-api-key-here
 ```
 
 See `.env.local.example` for reference.
@@ -110,12 +150,13 @@ This project is configured for deployment on **Appwrite Sites**. The configurati
    - Go to your Site → **Settings** → **Environment Variables**
    - Add all these variables (copy from your `.env.local`):
      ```
-     NEXT_PUBLIC_APPWRITE_ENDPOINT=https://nyc.cloud.appwrite.io/v1
-     NEXT_PUBLIC_APPWRITE_PROJECT_ID=693323540020aab7b045
-     NEXT_PUBLIC_APPWRITE_DATABASE_ID=694d8c8c00144fb71a7b
-     NEXT_PUBLIC_APPWRITE_CARDS_COLLECTION_ID=cards
-     NEXT_PUBLIC_APPWRITE_BLOG_COLLECTION_ID=blogposts
-     NEXT_PUBLIC_APPWRITE_STORAGE_BUCKET_ID=694d8d5500037f02535b
+     NEXT_PUBLIC_APPWRITE_ENDPOINT=https://your-endpoint.appwrite.io/v1
+     NEXT_PUBLIC_APPWRITE_PROJECT_ID=your-project-id
+     NEXT_PUBLIC_APPWRITE_DATABASE_ID=your-database-id
+     NEXT_PUBLIC_APPWRITE_CARDS_COLLECTION_ID=your-cards-collection-id
+     NEXT_PUBLIC_APPWRITE_BLOG_COLLECTION_ID=your-blog-collection-id
+     NEXT_PUBLIC_APPWRITE_PROJECTS_COLLECTION_ID=your-projects-collection-id
+     NEXT_PUBLIC_APPWRITE_STORAGE_BUCKET_ID=your-storage-bucket-id
      APPWRITE_API_KEY=your-api-key-here
      ```
    - **Important**: Use the full Collection IDs (not just names like "cards")
@@ -158,6 +199,7 @@ The variables needed are:
 - `NEXT_PUBLIC_APPWRITE_DATABASE_ID`
 - `NEXT_PUBLIC_APPWRITE_CARDS_COLLECTION_ID`
 - `NEXT_PUBLIC_APPWRITE_BLOG_COLLECTION_ID`
+- `NEXT_PUBLIC_APPWRITE_PROJECTS_COLLECTION_ID`
 - `NEXT_PUBLIC_APPWRITE_STORAGE_BUCKET_ID`
 - `APPWRITE_API_KEY` (optional, for server-side operations)
 
@@ -207,6 +249,14 @@ The project includes a fully functional admin panel for managing content.
 - Delete posts
 - Markdown preview while editing
 - Automatic slug generation from title
+
+#### Projects Management (`/admin/projects`)
+- View all portfolio projects
+- Create new projects with details and technologies
+- Edit existing projects
+- Delete projects
+- Featured projects management
+- Order management for project display
 
 ### Admin Panel UI
 

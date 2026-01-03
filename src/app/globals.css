@@ -1,4 +1,240 @@
 @import "tailwindcss";
+@import "@uiw/react-md-editor/markdown-editor.css";
+
+/* Configuración de dark mode para Tailwind v4 */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Estilos personalizados para el editor markdown */
+.wmde-markdown {
+  background-color: var(--color-alice-blue) !important;
+  color: var(--color-gunmetal) !important;
+}
+
+.dark .wmde-markdown {
+  background-color: var(--color-gunmetal) !important;
+  color: var(--color-pale-sky) !important;
+}
+
+.wmde-markdown-editor {
+  border-radius: 0.75rem !important;
+  border: 1px solid rgba(214, 201, 201, 0.3) !important;
+  overflow: hidden;
+}
+
+.dark .wmde-markdown-editor {
+  border-color: rgba(199, 211, 221, 0.2) !important;
+  background-color: rgba(55, 57, 58, 0.5) !important;
+}
+
+.wmde-markdown-editor-textarea {
+  background-color: var(--color-alice-blue) !important;
+  color: var(--color-gunmetal) !important;
+  font-family: var(--font-anonymous-pro), monospace !important;
+}
+
+.dark .wmde-markdown-editor-textarea {
+  background-color: rgba(55, 57, 58, 0.5) !important;
+  color: var(--color-pale-sky) !important;
+}
+
+.wmde-markdown-editor-toolbar {
+  background-color: rgba(232, 238, 242, 0.9) !important;
+  border-bottom: 1px solid rgba(214, 201, 201, 0.3) !important;
+}
+
+.dark .wmde-markdown-editor-toolbar {
+  background-color: rgba(55, 57, 58, 0.8) !important;
+  border-bottom-color: rgba(199, 211, 221, 0.2) !important;
+}
+
+.wmde-markdown-editor-toolbar button {
+  color: var(--color-gunmetal) !important;
+}
+
+.dark .wmde-markdown-editor-toolbar button {
+  color: var(--color-pale-sky) !important;
+}
+
+.wmde-markdown-editor-toolbar button:hover {
+  background-color: rgba(119, 182, 234, 0.1) !important;
+}
+
+.dark .wmde-markdown-editor-toolbar button:hover {
+  background-color: rgba(119, 182, 234, 0.2) !important;
+}
+
+/* Estilos para React Grid Layout - Drag and drop suave en tiempo real */
+.react-grid-item {
+  overflow: visible !important;
+  transition: left 0.2s ease-out, top 0.2s ease-out !important;
+}
+
+/* Durante el drag, sin transición para movimiento en tiempo real */
+.react-grid-item.react-draggable-dragging {
+  transition: none !important;
+  transform: translateZ(20px) rotateX(5deg) rotateY(-5deg) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(119, 182, 234, 0.2) !important;
+  z-index: 1000 !important;
+  opacity: 0.95;
+}
+
+.react-grid-item.react-draggable-dragging * {
+  pointer-events: none;
+}
+
+/* El handle de drag debe tener cursor move */
+.drag-handle {
+  cursor: move !important;
+}
+
+/* Prevenir drag en botones y controles - estos deben estar por encima del handle */
+.card-item-container > button,
+.card-item-container .size-selector-container {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  position: relative;
+  z-index: 50 !important;
+}
+
+/* El handle no debe capturar eventos de botones */
+.drag-handle button,
+.drag-handle .size-selector-container {
+  pointer-events: none !important;
+}
+
+/* Asegurar que botones dentro de card-item-container no sean draggables */
+.card-item-container button {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+/* Ocultar handles de resize en la landing (preview mode) */
+.bento-grid-preview .react-grid-item > .react-resizable-handle {
+  display: none !important;
+}
+
+.bento-grid-preview .react-grid-item {
+  cursor: default !important;
+}
+
+/* Ocultar handles de resize en admin también (solo tamaños predeterminados) */
+.react-grid-item > .react-resizable-handle {
+  display: none !important;
+}
+
+/* Handles de resize - hacerlos más grandes y visibles */
+.react-grid-item > .react-resizable-handle {
+  position: absolute;
+  z-index: 20;
+  opacity: 0.4;
+  transition: opacity 0.2s, background-color 0.2s;
+}
+
+.react-grid-item:hover > .react-resizable-handle {
+  opacity: 1;
+}
+
+.react-grid-item > .react-resizable-handle:hover {
+  opacity: 1;
+  background-color: rgba(119, 182, 234, 0.3);
+}
+
+/* Handle esquina inferior derecha (principal) */
+.react-grid-item > .react-resizable-handle-se {
+  bottom: -5px;
+  right: -5px;
+  width: 20px;
+  height: 20px;
+  cursor: se-resize;
+  background: linear-gradient(135deg, transparent 0%, transparent 40%, rgba(119, 182, 234, 0.6) 40%, rgba(119, 182, 234, 0.6) 60%, transparent 60%);
+  border-radius: 0 0 0.5rem 0;
+}
+
+.react-grid-item > .react-resizable-handle-se::after {
+  content: "";
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid rgba(119, 182, 234, 1);
+  border-bottom: 2px solid rgba(119, 182, 234, 1);
+}
+
+/* Handles de bordes - hacerlos más accesibles */
+.react-grid-item > .react-resizable-handle-s {
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 10px;
+  cursor: s-resize;
+  background-color: rgba(119, 182, 234, 0.2);
+  border-radius: 4px;
+}
+
+.react-grid-item > .react-resizable-handle-e {
+  right: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 60px;
+  cursor: e-resize;
+  background-color: rgba(119, 182, 234, 0.2);
+  border-radius: 4px;
+}
+
+.react-grid-item > .react-resizable-handle-w {
+  left: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 60px;
+  cursor: w-resize;
+  background-color: rgba(119, 182, 234, 0.2);
+  border-radius: 4px;
+}
+
+.react-grid-item > .react-resizable-handle-n {
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 10px;
+  cursor: n-resize;
+  background-color: rgba(119, 182, 234, 0.2);
+  border-radius: 4px;
+}
+
+/* Handles de esquinas adicionales */
+.react-grid-item > .react-resizable-handle-sw {
+  bottom: -5px;
+  left: -5px;
+  width: 20px;
+  height: 20px;
+  cursor: sw-resize;
+}
+
+.react-grid-item > .react-resizable-handle-ne {
+  top: -5px;
+  right: -5px;
+  width: 20px;
+  height: 20px;
+  cursor: ne-resize;
+}
+
+.react-grid-item > .react-resizable-handle-nw {
+  top: -5px;
+  left: -5px;
+  width: 20px;
+  height: 20px;
+  cursor: nw-resize;
+}
+
+/* Asegurar que los handles no se oculten */
+.react-grid-item > * {
+  overflow: visible;
+}
 
 @theme {
   --color-alice-blue: #e8eef2;
@@ -16,54 +252,30 @@
   --background-end-rgb: 232, 238, 242; /* alice-blue */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 199, 211, 221; /* pale-sky */
-    --background-start-rgb: 55, 57, 58; /* gunmetal */
-    --background-end-rgb: 55, 57, 58; /* gunmetal */
-  }
+.dark {
+  --foreground-rgb: 199, 211, 221; /* pale-sky */
+  --background-start-rgb: 55, 57, 58; /* gunmetal */
+  --background-end-rgb: 55, 57, 58; /* gunmetal */
 }
 
 @layer base {
+  * {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+  }
+
   html {
     scroll-behavior: smooth;
   }
 
   body {
     font-family: var(--font-anonymous-pro), monospace;
-    background-color: var(--color-pale-sky);
-    color: var(--color-gunmetal);
-    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 200ms;
-  }
-
-  .dark body {
-    background-color: var(--color-gunmetal);
-    color: var(--color-pale-sky);
-  }
-  
-  html {
-    background-color: var(--color-pale-sky);
-  }
-  
-  .dark html {
-    background-color: var(--color-gunmetal);
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-anonymous-pro), monospace;
     font-weight: 700;
-    color: #37393a;
-  }
-
-  .dark h1,
-  .dark h2,
-  .dark h3,
-  .dark h4,
-  .dark h5,
-  .dark h6 {
-    color: #e8eef2;
   }
 
   h1 {
@@ -285,4 +497,38 @@
     border-color: rgba(119, 182, 234, 0.2);
     box-shadow: 0 10px 15px -3px rgba(199, 211, 221, 0.08), 0 4px 6px -2px rgba(199, 211, 221, 0.04);
   }
+}
+
+/* Modal animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Custom select styling */
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2377b6ea' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+.dark select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2377b6ea' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
 }

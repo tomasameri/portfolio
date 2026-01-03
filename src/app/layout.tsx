@@ -23,8 +23,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${anonymousPro.variable}`}>
-      <body className="min-h-screen bg-pale-sky dark:bg-gunmetal text-gunmetal dark:text-pale-sky">
+    <html lang="en" className={`${anonymousPro.variable}`} suppressHydrationWarning>
+      <body className="min-h-screen">
         <Providers>
           {children}
         </Providers>

@@ -17,6 +17,34 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Helper function to check if error is an authentication/authorization error
+function isAuthError(err: unknown): boolean {
+  if (!err) return false;
+  
+  // Check if it's an AppwriteException with specific error codes
+  if (typeof err === 'object' && 'code' in err) {
+    const code = (err as { code?: number }).code;
+    // 401 = Unauthorized, 403 = Forbidden
+    return code === 401 || code === 403;
+  }
+  
+  // Check error message for common auth error patterns
+  if (err instanceof Error) {
+    const message = err.message.toLowerCase();
+    return (
+      message.includes('401') ||
+      message.includes('403') ||
+      message.includes('unauthorized') ||
+      message.includes('forbidden') ||
+      message.includes('missing scopes') ||
+      message.includes('missing scope') ||
+      message.includes('role: guests')
+    );
+  }
+  
+  return false;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<Models.User<Models.Preferences> | null>(null);
   const [loading, setLoading] = useState(true);
@@ -30,14 +58,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(session);
       return true;
     } catch (err) {
-      // 401 is expected when there's no session
-      if (err instanceof Error && err.message.includes('401')) {
+      // Silently handle authentication errors (no session = expected behavior)
+      // Don't log these errors to console as they're expected when user is not logged in
+      if (isAuthError(err)) {
         setUser(null);
         return false;
       }
-      // For other errors, log them and return false
+      
+      // Only log unexpected errors (network issues, etc.)
       if (err instanceof Error) {
-        console.error('Error checking session:', err);
+        // Only log if it's not a common auth error
+        const message = err.message.toLowerCase();
+        if (!message.includes('401') && !message.includes('unauthorized')) {
+          console.error('Error checking session:', err);
+        }
         setError(err.message);
       }
       setUser(null);
@@ -74,6 +108,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await account.deleteSession('current');
       setUser(null);
     } catch (err) {
+      // If already logged out or no session, just clear user state
+      if (isAuthError(err)) {
+        setUser(null);
+        return;
+      }
       const errorMessage = err instanceof Error ? err.message : 'Error al cerrar sesión';
       setError(errorMessage);
       throw err;

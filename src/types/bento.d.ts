@@ -4,6 +4,15 @@ export type BentoCardType = 'link' | 'image' | 'text' | 'social' | 'youtube' | '
 
 export type CardGroupType = 'social' | 'projects' | 'blog' | 'contact';
 
+// Layout para React Grid Layout
+export interface CardLayout {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  i: string; // id de la card
+}
+
 export interface BentoCard {
   id: string;
   type: BentoCardType;
@@ -12,11 +21,15 @@ export interface BentoCard {
   description?: string;
   url?: string;
   image?: string;
+  imageAsBackground?: boolean; // Si true, la imagen ocupa todo el card como fondo
   icon?: string | React.ReactNode;
   socialPlatform?: 'github' | 'linkedin' | 'twitter' | 'instagram' | 'tiktok' | 'youtube';
+  socialUsername?: string; // Username para redes sociales (ej: "tomiameri")
   color?: string;
   content?: React.ReactNode;
   group?: CardGroupType;
+  // Campos de layout para React Grid Layout (opcionales para backward compatibility)
+  layout?: CardLayout;
 }
 
 export interface CardGroup {

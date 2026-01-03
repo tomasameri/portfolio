@@ -10,7 +10,9 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push('/admin/login');
+      // Obtener el locale actual de la URL
+      const currentLang = window.location.pathname.split('/')[1] || 'en';
+      router.push(`/${currentLang}/admin/login`);
     }
   }, [user, loading, router]);
 

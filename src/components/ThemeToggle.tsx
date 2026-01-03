@@ -34,6 +34,7 @@ export default function ThemeToggle() {
       onClick={handleClick}
       className="fixed top-4 right-4 z-50 p-3 rounded-full bg-alice-blue dark:bg-gunmetal shadow-lg border border-dust-grey/30 dark:border-pale-sky/15 hover:border-cool-sky/50 dark:hover:border-cool-sky/30 hover:shadow-xl transition-all"
       aria-label="Toggle dark mode"
+      title={darkMode ? 'Cambiar a modo claro' : 'Switch to dark mode'}
     >
       {darkMode ? (
         <FiSun className="h-5 w-5 text-pale-sky hover:text-cool-sky transition-colors" />

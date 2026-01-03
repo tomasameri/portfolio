@@ -36,8 +36,106 @@ console.log(`  Project ID: ${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID?.substr
 console.log(`  Database ID: ${process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID?.substring(0, 8)}...`);
 console.log(`  Collection ID: ${process.env.NEXT_PUBLIC_APPWRITE_CARDS_COLLECTION_ID}\n`);
 
-// Ahora importar los servicios después de cargar las variables
-import { getCards, createCard } from '../src/lib/services/cardsService';
+// Importar Appwrite SDK directamente para crear nuestro propio cliente
+import { Client, Databases, ID } from 'appwrite';
+import { BentoCard } from '../src/types/bento';
+
+// Crear cliente de Appwrite específico para este script
+const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!;
+const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!;
+const databaseId = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID!;
+const collectionId = process.env.NEXT_PUBLIC_APPWRITE_CARDS_COLLECTION_ID!;
+
+const client = new Client()
+  .setEndpoint(endpoint)
+  .setProject(projectId);
+
+const databases = new Databases(client);
+
+// Interfaces necesarias
+interface CardDocument {
+  $id: string;
+  type: string;
+  size: string;
+  title?: string;
+  description?: string;
+  url?: string;
+  socialPlatform?: string;
+  image?: string;
+  icon?: string;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Función para convertir BentoCard a documento de Appwrite
+function cardToDocument(card: Omit<BentoCard, 'id'>, order: number): Partial<CardDocument> {
+  return {
+    type: card.type,
+    size: card.size,
+    title: card.title,
+    description: card.description,
+    url: card.url,
+    socialPlatform: card.socialPlatform,
+    image: card.image,
+    icon: typeof card.icon === 'string' ? card.icon : undefined,
+    order: order ?? 0,
+  };
+}
+
+// Función para obtener todas las cards
+async function getCards(): Promise<BentoCard[]> {
+  try {
+    const response = await databases.listDocuments(
+      databaseId,
+      collectionId,
+      []
+    );
+
+    const cards = response.documents as unknown as CardDocument[];
+    cards.sort((a, b) => (a.order || 0) - (b.order || 0));
+    
+    return cards.map(doc => ({
+      id: doc.$id,
+      type: doc.type as BentoCard['type'],
+      size: doc.size as BentoCard['size'],
+      title: doc.title,
+      description: doc.description,
+      url: doc.url,
+      socialPlatform: doc.socialPlatform as BentoCard['socialPlatform'],
+      image: doc.image,
+      icon: doc.icon,
+    }));
+  } catch (error: any) {
+    console.error('Error fetching cards:', error);
+    return [];
+  }
+}
+
+// Función para crear una card
+async function createCard(card: Omit<BentoCard, 'id'>, order: number): Promise<BentoCard> {
+  const document = cardToDocument(card, order);
+  
+  const response = await databases.createDocument(
+    databaseId,
+    collectionId,
+    ID.unique(),
+    document as any
+  );
+
+  const doc = response as unknown as CardDocument;
+  return {
+    id: doc.$id,
+    type: doc.type as BentoCard['type'],
+    size: doc.size as BentoCard['size'],
+    title: doc.title,
+    description: doc.description,
+    url: doc.url,
+    socialPlatform: doc.socialPlatform as BentoCard['socialPlatform'],
+    image: doc.image,
+    icon: doc.icon,
+  };
+}
 
 const defaultCards = [
   {

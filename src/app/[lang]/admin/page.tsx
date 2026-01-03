@@ -61,6 +61,18 @@ export default function AdminDashboard() {
               Crea, edita y publica entradas de blog.
             </p>
           </Link>
+
+          <Link
+            href="/admin/projects"
+            className="p-6 bg-alice-blue dark:bg-pale-sky/10 rounded-xl border border-dust-grey/30 dark:border-pale-sky/20 hover:border-cool-sky/40 dark:hover:border-cool-sky/30 transition-all hover:shadow-lg"
+          >
+            <h2 className="text-2xl font-semibold text-gunmetal dark:text-alice-blue mb-2">
+              Gestionar Proyectos
+            </h2>
+            <p className="text-gunmetal/70 dark:text-pale-sky/80">
+              Administra tus proyectos, agrega descripciones, tecnologías y enlaces.
+            </p>
+          </Link>
         </div>
       </div>
     </div>

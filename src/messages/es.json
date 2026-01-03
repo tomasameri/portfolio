@@ -8,6 +8,36 @@
   },
   "home": {
     "title": "Bienvenido a mi Portafolio",
-    "subtitle": "Soy un desarrollador apasionado"
+    "subtitle": "Soy un desarrollador apasionado",
+    "noCards": "No hay contenido disponible en este momento.",
+    "loading": "Cargando...",
+    "error": "Error al cargar el contenido"
+  },
+  "projects": {
+    "title": "Mis Proyectos",
+    "noProjects": "No hay proyectos disponibles en este momento.",
+    "loading": "Cargando proyectos...",
+    "viewMore": "Ver más",
+    "viewProject": "Ver Proyecto",
+    "viewGithub": "Ver en GitHub",
+    "technologies": "Tecnologías",
+    "aboutProject": "Sobre este proyecto"
+  },
+  "blog": {
+    "title": "Blog",
+    "noPosts": "No hay publicaciones disponibles en este momento.",
+    "loading": "Cargando publicaciones...",
+    "readMore": "Leer más"
+  },
+  "about": {
+    "title": "Sobre mí"
+  },
+  "contact": {
+    "title": "Contacto"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "close": "Cerrar"
   }
 }

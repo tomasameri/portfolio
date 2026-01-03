@@ -1,8 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
+import dynamic from 'next/dynamic';
 import { BlogPost } from '@/lib/services/blogService';
+
+// Importar el editor markdown de forma dinámica para evitar problemas de SSR
+const MDEditor = dynamic(
+  () => import('@uiw/react-md-editor').then((mod) => mod.default),
+  { ssr: false }
+);
 
 interface BlogPostFormProps {
   post?: BlogPost;
@@ -23,7 +29,6 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
   const [excerpt, setExcerpt] = useState('');
   const [content, setContent] = useState('');
   const [published, setPublished] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -40,7 +45,6 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
       setContent('');
       setPublished(false);
     }
-    setShowPreview(false);
   }, [post, isOpen]);
 
   // Generar slug automáticamente desde el título
@@ -142,32 +146,29 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
             </div>
 
             <div>
-              <div className="flex justify-between items-center mb-2">
-                <label className="block text-sm font-medium text-gunmetal dark:text-pale-sky">
-                  Contenido (Markdown)
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setShowPreview(!showPreview)}
-                  className="text-sm text-cool-sky hover:text-cool-sky/80"
-                >
-                  {showPreview ? 'Editar' : 'Vista Previa'}
-                </button>
-              </div>
-              {showPreview ? (
-                <div className="min-h-[300px] p-4 bg-white dark:bg-gunmetal rounded-md border border-dust-grey/40 dark:border-pale-sky/20 prose prose-sm dark:prose-invert max-w-none">
-                  <ReactMarkdown>{content}</ReactMarkdown>
-                </div>
-              ) : (
-                <textarea
+              <label className="block text-sm font-medium text-gunmetal dark:text-pale-sky mb-2">
+                Contenido (Markdown)
+              </label>
+              <div data-color-mode={typeof window !== 'undefined' && document.documentElement.classList.contains('dark') ? 'dark' : 'light'}>
+                <MDEditor
                   value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  required
-                  rows={15}
-                  className="w-full px-4 py-2 rounded-md border border-dust-grey/40 dark:border-pale-sky/20 bg-white dark:bg-gunmetal text-gunmetal dark:text-pale-sky font-mono text-sm"
-                  placeholder="Escribe tu contenido en Markdown..."
+                  onChange={(value) => setContent(value || '')}
+                  preview="edit" // Modo split: editor + preview en tiempo real
+                  hideToolbar={false}
+                  visibleDragbar={true}
+                  textareaProps={{
+                    placeholder: 'Escribe tu contenido en Markdown...',
+                    style: {
+                      fontSize: 14,
+                      minHeight: '400px',
+                    },
+                  }}
+                  height={500}
                 />
-              )}
+              </div>
+              <p className="mt-2 text-xs text-gunmetal/60 dark:text-pale-sky/60">
+                💡 Usa la barra de herramientas para formatear el texto. El preview se muestra en tiempo real.
+              </p>
             </div>
 
             <div className="flex items-center">

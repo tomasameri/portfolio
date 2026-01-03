@@ -32,8 +32,119 @@ if (missingVars.length > 0) {
 
 console.log('✓ Variables de entorno cargadas correctamente\n');
 
-import { createPost, getAllPosts } from '../src/lib/services/blogService';
-import { account } from '../src/lib/appwrite';
+// Importar Appwrite SDK directamente
+import { Client, Databases, Account, ID } from 'appwrite';
+
+// Crear cliente de Appwrite específico para este script
+const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!;
+const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!;
+const databaseId = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID!;
+const collectionId = process.env.NEXT_PUBLIC_APPWRITE_BLOG_COLLECTION_ID!;
+const apiKey = process.env.APPWRITE_API_KEY;
+
+// Crear cliente con API key para operaciones administrativas
+const client = new Client()
+  .setEndpoint(endpoint)
+  .setProject(projectId);
+
+if (apiKey) {
+  // Si hay API key, usarla para operaciones administrativas
+  client.setDevKey(apiKey);
+} else {
+  console.warn('⚠️  No se encontró APPWRITE_API_KEY. El script intentará usar autenticación de usuario.');
+}
+
+const databases = new Databases(client);
+const account = new Account(client);
+
+// Interfaces necesarias
+interface BlogPostDocument {
+  $id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  published: boolean;
+  publishedAt?: string;
+  authorId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Función para obtener todos los posts
+async function getAllPosts(): Promise<any[]> {
+  try {
+    const response = await databases.listDocuments(
+      databaseId,
+      collectionId,
+      []
+    );
+
+    const posts = response.documents as unknown as BlogPostDocument[];
+    posts.sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return dateB - dateA;
+    });
+
+    return posts.map(post => ({
+      id: post.$id,
+      title: post.title,
+      slug: post.slug,
+      excerpt: post.excerpt,
+      content: post.content,
+      published: post.published,
+      publishedAt: post.publishedAt,
+      authorId: post.authorId,
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
+    }));
+  } catch (error: any) {
+    console.error('Error fetching posts:', error);
+    return [];
+  }
+}
+
+// Función para crear un post
+async function createPost(
+  title: string,
+  slug: string,
+  excerpt: string,
+  content: string,
+  authorId: string,
+  published: boolean = false
+): Promise<any> {
+  const postData: Partial<BlogPostDocument> = {
+    title,
+    slug,
+    excerpt,
+    content,
+    published,
+    authorId,
+    publishedAt: published ? new Date().toISOString() : undefined,
+  };
+
+  const response = await databases.createDocument(
+    databaseId,
+    collectionId,
+    ID.unique(),
+    postData as any
+  );
+
+  const post = response as unknown as BlogPostDocument;
+  return {
+    id: post.$id,
+    title: post.title,
+    slug: post.slug,
+    excerpt: post.excerpt,
+    content: post.content,
+    published: post.published,
+    publishedAt: post.publishedAt,
+    authorId: post.authorId,
+    createdAt: post.createdAt,
+    updatedAt: post.updatedAt,
+  };
+}
 
 const examplePosts = [
   {
@@ -76,10 +187,30 @@ Y mucho más contenido en markdown.`,
 
 async function migrateBlogPosts() {
   try {
-    // Verificar autenticación
-    console.log('Verificando autenticación...');
-    const user = await account.get();
-    console.log(`✓ Autenticado como: ${user.email}`);
+    let authorId: string;
+
+    // Si hay API key, usar un ID de autor por defecto o el que se especifique
+    if (apiKey) {
+      // Con API key, podemos usar un ID de autor por defecto
+      // O puedes especificar un authorId en las variables de entorno
+      authorId = process.env.APPWRITE_AUTHOR_ID || 'default-author';
+      console.log(`✓ Usando API Key para operaciones administrativas`);
+      console.log(`  Author ID: ${authorId}`);
+    } else {
+      // Sin API key, necesitamos autenticación de usuario
+      console.log('Verificando autenticación...');
+      try {
+        const user = await account.get();
+        authorId = user.$id;
+        console.log(`✓ Autenticado como: ${user.email}`);
+      } catch (error: any) {
+        console.error('❌ Error de autenticación:', error.message);
+        console.error('\n💡 Opciones:');
+        console.error('   1. Agrega APPWRITE_API_KEY a tu .env.local para usar operaciones administrativas');
+        console.error('   2. O inicia sesión primero usando el panel admin y ejecuta este script');
+        process.exit(1);
+      }
+    }
 
     console.log('Verificando posts existentes...');
     const existingPosts = await getAllPosts();
@@ -98,17 +229,20 @@ async function migrateBlogPosts() {
         post.slug,
         post.excerpt,
         post.content,
-        user.$id,
+        authorId,
         post.published
       );
       console.log(`✓ Post ${i + 1}/${examplePosts.length} creado: ${post.title}`);
     }
 
     console.log('\n✅ Migración completada exitosamente!');
-  } catch (error) {
-    console.error('❌ Error durante la migración:', error);
-    if (error instanceof Error && error.message.includes('session')) {
-      console.error('Por favor, inicia sesión primero usando el panel admin.');
+  } catch (error: any) {
+    console.error('❌ Error durante la migración:', error.message || error);
+    if (error.code === 401 || error.code === 403) {
+      console.error('\n💡 El error de autenticación puede significar que:');
+      console.error('   1. La API Key no tiene permisos de administrador');
+      console.error('   2. La API Key es incorrecta');
+      console.error('   3. No hay sesión de usuario activa (si no usas API Key)');
     }
     process.exit(1);
   }

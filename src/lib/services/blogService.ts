@@ -42,6 +42,32 @@ function documentToPost(doc: BlogPostDocument): BlogPost {
   };
 }
 
+// Helper function to check if error is an authorization error
+function isAuthError(error: any): boolean {
+  if (!error) return false;
+  
+  // Check error code
+  if (error.code === 401 || error.code === 403) {
+    return true;
+  }
+  
+  // Check error message
+  if (error.message) {
+    const message = error.message.toLowerCase();
+    return (
+      message.includes('401') ||
+      message.includes('403') ||
+      message.includes('unauthorized') ||
+      message.includes('forbidden') ||
+      message.includes('not authorized') ||
+      message.includes('missing scopes') ||
+      message.includes('missing scope')
+    );
+  }
+  
+  return false;
+}
+
 // Obtener todos los posts publicados
 export async function getPublishedPosts(): Promise<BlogPost[]> {
   try {
@@ -73,13 +99,21 @@ export async function getPublishedPosts(): Promise<BlogPost[]> {
 
     return publishedPosts.map(documentToPost);
   } catch (error: any) {
-    console.error('Error fetching published posts:', error);
-    // Si es un error de configuración, retornar array vacío
-    if (error?.code === 0 || error?.message?.includes('Route not found')) {
-      console.warn('Appwrite not configured or route not found. Returning empty array.');
+    // Si es un error de autorización (permisos), retornar array vacío silenciosamente
+    if (isAuthError(error)) {
+      // Esto puede ocurrir si los permisos no están configurados correctamente
+      // Retornamos array vacío en lugar de lanzar error
       return [];
     }
-    throw error;
+    
+    // Si es un error de configuración, retornar array vacío
+    if (error?.code === 0 || error?.message?.includes('Route not found')) {
+      return [];
+    }
+    
+    // Para otros errores, loguear y retornar array vacío
+    console.error('Error fetching published posts:', error);
+    return [];
   }
 }
 
@@ -153,13 +187,19 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
 
     return documentToPost(post);
   } catch (error: any) {
-    console.error('Error fetching post by slug:', error);
-    // Si es un error de configuración, retornar null
-    if (error?.code === 0 || error?.message?.includes('Route not found')) {
-      console.warn('Appwrite not configured or route not found. Returning null.');
+    // Si es un error de autorización (permisos), retornar null silenciosamente
+    if (isAuthError(error)) {
       return null;
     }
-    throw error;
+    
+    // Si es un error de configuración, retornar null
+    if (error?.code === 0 || error?.message?.includes('Route not found')) {
+      return null;
+    }
+    
+    // Para otros errores, loguear y retornar null
+    console.error('Error fetching post by slug:', error);
+    return null;
   }
 }
 
@@ -198,8 +238,20 @@ export async function createPost(
     );
 
     return documentToPost(response as unknown as BlogPostDocument);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating post:', error);
+    
+    // Mejorar mensaje de error para atributos faltantes
+    if (error?.message?.includes('Unknown attribute')) {
+      const attributeMatch = error.message.match(/Unknown attribute: "([^"]+)"/);
+      const attribute = attributeMatch ? attributeMatch[1] : 'desconocido';
+      throw new Error(
+        `El atributo "${attribute}" no está definido en la colección de blogPosts en Appwrite. ` +
+        `Por favor, ve a Appwrite Console → Databases → Tu Base de Datos → Collections → blogPosts → Attributes ` +
+        `y crea el atributo "${attribute}". Consulta APPWRITE_SETUP.md para más detalles.`
+      );
+    }
+    
     throw error;
   }
 }

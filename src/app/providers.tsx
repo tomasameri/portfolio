@@ -50,9 +50,9 @@ export function Web3Provider({ children }: { children: ReactNode }) {
         }) as string[];
         
         setIsConnected(accounts.length > 0);
-      } catch (error) {
+      } catch (error: any) {
         // Ignorar el error de "wallet must have at least one account"
-        if (error.code !== 4001) {
+        if (error?.code !== 4001) {
           console.error('Error checking wallet connection:', error);
         }
         setIsConnected(false);

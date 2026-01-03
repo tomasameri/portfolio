@@ -8,6 +8,36 @@
   },
   "home": {
     "title": "Welcome to My Portfolio",
-    "subtitle": "I'm a passionate developer"
+    "subtitle": "I'm a passionate developer",
+    "noCards": "No content available at the moment.",
+    "loading": "Loading...",
+    "error": "Error loading content"
+  },
+  "projects": {
+    "title": "My Projects",
+    "noProjects": "No projects available at the moment.",
+    "loading": "Loading projects...",
+    "viewMore": "View more",
+    "viewProject": "View Project",
+    "viewGithub": "View on GitHub",
+    "technologies": "Technologies",
+    "aboutProject": "About this project"
+  },
+  "blog": {
+    "title": "Blog",
+    "noPosts": "No posts available at the moment.",
+    "loading": "Loading posts...",
+    "readMore": "Read more"
+  },
+  "about": {
+    "title": "About Me"
+  },
+  "contact": {
+    "title": "Contact"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "close": "Close"
   }
 }

@@ -10,9 +10,10 @@ export default function AdminLoginPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Si ya está autenticado, redirigir al dashboard
+    // Si ya está autenticado, redirigir al dashboard con el locale actual
     if (!loading && user) {
-      router.push('/admin');
+      const currentLang = window.location.pathname.split('/')[1] || 'en';
+      router.push(`/${currentLang}/admin`);
     }
   }, [user, loading, router]);
 

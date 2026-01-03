@@ -9,7 +9,7 @@ import { BentoCard } from "@/types/bento";
 import { getCards } from "@/lib/services/cardsService";
 
 export default function Home() {
-  const { locale } = useLocale();
+  const { locale, messages } = useLocale();
   const [cards, setCards] = useState<BentoCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +37,7 @@ export default function Home() {
   if (loading) {
     return (
       <div className="min-h-screen py-12 flex items-center justify-center">
-        <div className="text-gunmetal dark:text-pale-sky">Cargando...</div>
+        <div className="text-gunmetal dark:text-pale-sky">{messages.home.loading}</div>
       </div>
     );
   }
@@ -45,7 +45,7 @@ export default function Home() {
   if (error) {
     return (
       <div className="min-h-screen py-12 flex items-center justify-center">
-        <div className="text-red-500">{error}</div>
+        <div className="text-red-500">{messages.home.error}</div>
       </div>
     );
   }
@@ -63,12 +63,7 @@ export default function Home() {
               <BentoGrid cards={cards} />
             ) : !loading ? (
               <div className="text-center py-12 text-gunmetal/70 dark:text-pale-sky/70">
-                <p className="mb-2">No hay cards disponibles.</p>
-                <p className="text-sm">
-                  {process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID 
-                    ? 'Crea algunas cards desde el panel de administración.'
-                    : 'Configura Appwrite en tu archivo .env.local para comenzar.'}
-                </p>
+                <p className="mb-2">{messages.home.noCards}</p>
               </div>
             ) : null}
           </div>
