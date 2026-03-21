@@ -50,35 +50,73 @@ export default function BlogPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <h1 className="text-4xl font-bold mb-8 text-gunmetal dark:text-alice-blue">Blog</h1>
-      <div className="space-y-8">
+    <div className="container mx-auto px-4 py-20 max-w-5xl">
+      <header className="mb-20 text-center">
+        <h1 className="text-6xl font-display font-bold mb-4 text-gunmetal dark:text-alice-blue tracking-tighter italic">Journal</h1>
+        <p className="text-gunmetal/50 dark:text-pale-sky/50 font-medium">Reflexiones sobre diseño, código y producto.</p>
+      </header>
+      
+      <div className="space-y-24">
         {posts.length > 0 ? (
           posts.map((post) => (
             <article
               key={post.id}
-              className="border-b border-dust-grey/30 dark:border-pale-sky/10 pb-8"
+              className="group"
             >
-              <Link href={`/blog/${post.slug}`}>
-                <h2 className="text-2xl font-semibold mb-2 text-gunmetal dark:text-alice-blue hover:text-cool-sky dark:hover:text-cool-sky transition-colors">
-                  {post.title}
-                </h2>
+              <Link href={`/blog/${post.slug}`} className="grid md:grid-cols-12 gap-8 items-center cursor-pointer">
+                {/* Image Side */}
+                <div className="md:col-span-5 aspect-[4/3] rounded-3xl overflow-hidden bg-dust-grey/10 dark:bg-pale-sky/5 border border-dust-grey/10 dark:border-pale-sky/10 shadow-lg shadow-cool-sky/5 group-hover:shadow-cool-sky/15 transition-all duration-500">
+                  {post.coverImage ? (
+                    <img 
+                      src={post.coverImage} 
+                      alt={post.title} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center opacity-20 italic font-display text-2xl">
+                       {post.title.charAt(0)}
+                    </div>
+                  )}
+                </div>
+
+                {/* Content Side */}
+                <div className="md:col-span-7 space-y-4">
+                  <div className="flex flex-wrap gap-2">
+                    {post.tags?.slice(0, 3).map(tag => (
+                      <span key={tag} className="text-[9px] font-black uppercase tracking-[0.2em] text-cool-sky/60">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  <h2 className="text-3xl md:text-4xl font-display font-bold text-gunmetal dark:text-alice-blue group-hover:text-cool-sky transition-colors leading-tight">
+                    {post.title}
+                  </h2>
+                  
+                  <p className="text-gunmetal/60 dark:text-pale-sky/60 line-clamp-2 text-lg">
+                    {post.excerpt}
+                  </p>
+
+                  <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-gunmetal/30 dark:text-pale-sky/30 pt-4">
+                    {post.publishedAt && (
+                      <time>
+                        {new Date(post.publishedAt).toLocaleDateString('es-ES', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}
+                      </time>
+                    )}
+                    <span className="w-1 h-1 bg-dust-grey rounded-full opacity-30" />
+                    <span>{post.readingTime || 5} min read</span>
+                  </div>
+                </div>
               </Link>
-              <p className="text-gunmetal/70 dark:text-pale-sky/80 mb-2">{post.excerpt}</p>
-              {post.publishedAt && (
-                <time className="text-sm text-gunmetal/50 dark:text-pale-sky/60">
-                  {new Date(post.publishedAt).toLocaleDateString('es-ES', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </time>
-              )}
             </article>
           ))
         ) : (
-          <div className="text-center py-12 text-gunmetal/70 dark:text-pale-sky/70">
-            No hay posts publicados aún.
+          <div className="text-center py-24 bg-alice-blue dark:bg-gunmetal/20 rounded-3xl border border-dashed border-dust-grey/20">
+            <p className="text-gunmetal/40 dark:text-pale-sky/40 italic">Aún no hay historias para contar.</p>
           </div>
         )}
       </div>

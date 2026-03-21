@@ -39,13 +39,7 @@ export default function BlogPostList() {
     setIsFormOpen(true);
   };
 
-  const handleSave = async (data: {
-    title: string;
-    slug: string;
-    excerpt: string;
-    content: string;
-    published: boolean;
-  }) => {
+  const handleSave = async (data: Partial<Omit<BlogPost, 'id' | 'createdAt' | 'updatedAt' | 'authorId'>>) => {
     if (!user) {
       alert('Debes estar autenticado para crear/editar posts');
       return;
@@ -55,13 +49,15 @@ export default function BlogPostList() {
       if (editingPost) {
         await updatePost(editingPost.id, data);
       } else {
+        const { title, slug, excerpt, content, published, ...metadata } = data;
         await createPost(
-          data.title,
-          data.slug,
-          data.excerpt,
-          data.content,
+          title || '',
+          slug || '',
+          excerpt || '',
+          content || '',
           user.$id,
-          data.published
+          published || false,
+          metadata
         );
       }
       await loadPosts();

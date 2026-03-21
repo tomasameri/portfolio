@@ -11,6 +11,13 @@ export interface BlogPost {
   authorId: string;
   createdAt: string;
   updatedAt: string;
+  // New editorial fields
+  tags?: string[];
+  featured?: boolean;
+  coverImage?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  readingTime?: number;
 }
 
 export interface BlogPostDocument {
@@ -24,6 +31,13 @@ export interface BlogPostDocument {
   authorId: string;
   createdAt: string;
   updatedAt: string;
+  // New editorial fields
+  tags?: string[];
+  featured?: boolean;
+  coverImage?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  readingTime?: number;
 }
 
 // Convertir documento de Appwrite a BlogPost
@@ -39,6 +53,12 @@ function documentToPost(doc: BlogPostDocument): BlogPost {
     authorId: doc.authorId,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
+    tags: doc.tags || [],
+    featured: doc.featured || false,
+    coverImage: doc.coverImage,
+    seoTitle: doc.seoTitle,
+    seoDescription: doc.seoDescription,
+    readingTime: doc.readingTime,
   };
 }
 
@@ -210,7 +230,8 @@ export async function createPost(
   excerpt: string,
   content: string,
   authorId: string,
-  published: boolean = false
+  published: boolean = false,
+  metadata?: Partial<Pick<BlogPost, 'tags' | 'featured' | 'coverImage' | 'seoTitle' | 'seoDescription' | 'readingTime'>>
 ): Promise<BlogPost> {
   try {
     const databaseId = getDatabaseId();
@@ -228,6 +249,7 @@ export async function createPost(
       published,
       authorId,
       publishedAt: published ? new Date().toISOString() : undefined,
+      ...metadata,
     };
 
     const response = await databases.createDocument(
@@ -259,7 +281,7 @@ export async function createPost(
 // Actualizar post
 export async function updatePost(
   postId: string,
-  updates: Partial<Pick<BlogPost, 'title' | 'slug' | 'excerpt' | 'content' | 'published'>>
+  updates: Partial<Omit<BlogPost, 'id' | 'createdAt' | 'updatedAt' | 'authorId'>>
 ): Promise<BlogPost> {
   try {
     const databaseId = getDatabaseId();

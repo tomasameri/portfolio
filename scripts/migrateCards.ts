@@ -179,7 +179,7 @@ const defaultCards = [
     socialPlatform: 'instagram' as const,
   },
   {
-    type: 'youtube' as const,
+    type: 'social' as const,
     size: 'small' as const,
     title: 'Tomi (Tech content & More)',
     description: 'Tech content, tutorials and more',
@@ -187,7 +187,7 @@ const defaultCards = [
     socialPlatform: 'youtube' as const,
   },
   {
-    type: 'youtube' as const,
+    type: 'social' as const,
     size: 'large' as const,
     title: 'Toto (Just me playing some music)',
     description: 'Music sessions and covers',
