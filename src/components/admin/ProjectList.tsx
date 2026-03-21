@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Project, getAllProjects, deleteProject, updateProject, createProject } from '@/lib/services/projectsService';
+import { Project } from '@/lib/services/projectsService';
+import { createProjectAction, updateProjectAction, deleteProjectAction, getProjectsAction } from '@/actions/projects';
 import ProjectForm from './ProjectForm';
+
 
 export default function ProjectList() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -17,7 +19,7 @@ export default function ProjectList() {
   const loadProjects = async () => {
     try {
       setLoading(true);
-      const fetchedProjects = await getAllProjects();
+      const fetchedProjects = await getProjectsAction();
       setProjects(fetchedProjects);
     } catch (error) {
       console.error('Error loading projects:', error);
@@ -51,9 +53,9 @@ export default function ProjectList() {
   }) => {
     try {
       if (editingProject) {
-        await updateProject(editingProject.id, data);
+        await updateProjectAction(editingProject.id, data);
       } else {
-        await createProject(
+        await createProjectAction(
           data.title,
           data.slug,
           data.description,
@@ -79,7 +81,7 @@ export default function ProjectList() {
       return;
     }
     try {
-      await deleteProject(projectId);
+      await deleteProjectAction(projectId);
       await loadProjects();
     } catch (error) {
       console.error('Error deleting project:', error);
@@ -89,7 +91,7 @@ export default function ProjectList() {
 
   const handleToggleFeatured = async (project: Project) => {
     try {
-      await updateProject(project.id, { featured: !project.featured });
+      await updateProjectAction(project.id, { featured: !project.featured });
       await loadProjects();
     } catch (error) {
       console.error('Error toggling featured:', error);
@@ -177,11 +179,10 @@ export default function ProjectList() {
                 </button>
                 <button
                   onClick={() => handleToggleFeatured(project)}
-                  className={`p-2 rounded ${
-                    project.featured
-                      ? 'bg-gray-500 text-white hover:bg-gray-600'
-                      : 'bg-yellow-500 text-white hover:bg-yellow-600'
-                  }`}
+                  className={`p-2 rounded ${project.featured
+                    ? 'bg-gray-500 text-white hover:bg-gray-600'
+                    : 'bg-yellow-500 text-white hover:bg-yellow-600'
+                    }`}
                   title={project.featured ? 'Quitar destacado' : 'Destacar'}
                 >
                   {project.featured ? '⭐' : '☆'}

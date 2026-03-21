@@ -65,8 +65,8 @@ function documentToCard(doc: CardDocument): BentoCard {
     icon: doc.icon,
   };
   
-  // Agregar layout si existe
-  if (doc.layoutX !== undefined && doc.layoutY !== undefined && doc.layoutW !== undefined && doc.layoutH !== undefined) {
+  // Agregar layout si existe (Appwrite returns null for unset fields, not undefined)
+  if (doc.layoutX != null && doc.layoutY != null && doc.layoutW != null && doc.layoutH != null) {
     card.layout = {
       x: doc.layoutX,
       y: doc.layoutY,

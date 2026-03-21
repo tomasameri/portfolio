@@ -30,10 +30,45 @@
     "readMore": "Leer más"
   },
   "about": {
-    "title": "Sobre mí"
+    "title": "Sobre mí",
+    "intro": {
+      "greeting": "Soy Tomás Ameri,",
+      "role": "estudiante de Sistemas y constructor de productos digitales con interés en marketplaces, automatización e inteligencia artificial aplicada.",
+      "motivation": "Me motiva entender cómo funcionan los sistemas digitales y diseñarlos de manera que reduzcan fricción, simplifiquen procesos y conecten personas de forma eficiente."
+    },
+    "howIWork": {
+      "title": "Cómo trabajo",
+      "subtitle": "Construir. Validar. Mejorar.",
+      "description": "Me interesa construir soluciones reales, validar rápido y mejorar constantemente. Disfruto pensar los productos desde su estructura: cómo interactúan las partes, dónde puede haber fricción y cómo hacer que el sistema sea más simple y escalable."
+    },
+    "currentStage": {
+      "description": "Estoy en una etapa de crecimiento, fortaleciendo mis habilidades técnicas mientras desarrollo visión de producto y experiencia práctica en construcción de marketplaces."
+    },
+    "goal": {
+      "description": "Mi objetivo es seguir creando herramientas digitales que conecten personas y simplifiquen procesos de manera eficiente y sostenible."
+    }
   },
   "contact": {
-    "title": "Contacto"
+    "title": "Contacto",
+    "badge": "CONTACTO",
+    "heroTitleStart": "Charlemos para",
+    "heroTitleHighlight": "encontrar nuevas ideas",
+    "heroSubtitle": "Estoy siempre abierto a debatir nuevas propuestas, proyectos creativos u oportunidades para colaborar juntos.",
+    "emailLabel": "Email",
+    "locationLabel": "Ubicación",
+    "locationValue": "Buenos Aires, Argentina",
+    "followMe": "Sígueme",
+    "form": {
+      "nameLabel": "Nombre",
+      "namePlaceholder": "Tu nombre",
+      "emailLabel": "Email",
+      "emailPlaceholder": "tu@email.com",
+      "subjectLabel": "Asunto",
+      "subjectPlaceholder": "¿Sobre qué quieres hablar?",
+      "messageLabel": "Mensaje",
+      "messagePlaceholder": "Cuéntame más sobre tu proyecto...",
+      "submitButton": "Enviar Mensaje"
+    }
   },
   "common": {
     "loading": "Cargando...",

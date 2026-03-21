@@ -30,10 +30,45 @@
     "readMore": "Read more"
   },
   "about": {
-    "title": "About Me"
+    "title": "About Me",
+    "intro": {
+      "greeting": "I am Tomás Ameri,",
+      "role": "Systems student and digital product builder interested in marketplaces, automation, and applied artificial intelligence.",
+      "motivation": "I am motivated by understanding how digital systems work and designing them to reduce friction, simplify processes, and connect people efficiently."
+    },
+    "howIWork": {
+      "title": "How I Work",
+      "subtitle": "Build. Validate. Improve.",
+      "description": "I focus on building real solutions, validating quickly, and constantly improving. I enjoy thinking about products from their structure: how parts interact, where friction might significantly exist, and how to make the system simpler and more scalable."
+    },
+    "currentStage": {
+      "description": "I am in a growth stage, strengthening my technical skills while developing product vision and practical experience in building marketplaces."
+    },
+    "goal": {
+      "description": "My goal is to continue creating digital tools that connect people and simplify processes efficiently and sustainably."
+    }
   },
   "contact": {
-    "title": "Contact"
+    "title": "Contact",
+    "badge": "CONTACT",
+    "heroTitleStart": "Let's chat to",
+    "heroTitleHighlight": "find new ideas",
+    "heroSubtitle": "I am always open to discussing new proposals, creative projects, or opportunities to collaborate together.",
+    "emailLabel": "Email",
+    "locationLabel": "Location",
+    "locationValue": "Buenos Aires, Argentina",
+    "followMe": "Follow Me",
+    "form": {
+      "nameLabel": "Name",
+      "namePlaceholder": "Your name",
+      "emailLabel": "Email",
+      "emailPlaceholder": "your@email.com",
+      "subjectLabel": "Subject",
+      "subjectPlaceholder": "What do you want to talk about?",
+      "messageLabel": "Message",
+      "messagePlaceholder": "Tell me more about your project...",
+      "submitButton": "Send Message"
+    }
   },
   "common": {
     "loading": "Loading...",

@@ -33,7 +33,7 @@ export interface ProjectDocument {
 }
 
 // Convertir documento de Appwrite a Project
-function documentToProject(doc: ProjectDocument): Project {
+export function documentToProject(doc: ProjectDocument): Project {
   return {
     id: doc.$id,
     title: doc.title,

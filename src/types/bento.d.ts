@@ -1,6 +1,6 @@
 export type BentoCardSize = 'small' | 'medium' | 'large' | 'wide' | 'tall';
 
-export type BentoCardType = 'link' | 'image' | 'text' | 'social' | 'youtube' | 'custom';
+export type BentoCardType = 'link' | 'image' | 'text' | 'social' | 'youtube' | 'custom' | 'spotify';
 
 export type CardGroupType = 'social' | 'projects' | 'blog' | 'contact';
 

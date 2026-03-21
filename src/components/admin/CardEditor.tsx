@@ -19,6 +19,7 @@ const socialPlatforms = ['github', 'linkedin', 'twitter', 'instagram', 'tiktok',
 const typeLabels: Record<BentoCardType, string> = {
   social: 'Red Social',
   youtube: 'YouTube',
+  spotify: 'Spotify',
   custom: 'Personalizada',
   link: 'Enlace',
   image: 'Imagen',
@@ -104,7 +105,7 @@ export default function CardEditor({ card, isOpen, onClose, onSave }: CardEditor
   if (!isOpen) return null;
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
       style={{ animation: 'fadeIn 0.2s ease-out' }}
       onClick={(e) => {
@@ -113,9 +114,9 @@ export default function CardEditor({ card, isOpen, onClose, onSave }: CardEditor
     >
       {/* Backdrop */}
       <div className="absolute inset-0 bg-gunmetal/60 dark:bg-black/70" />
-      
+
       {/* Modal */}
-      <div 
+      <div
         className="relative w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-3xl bg-alice-blue/95 dark:bg-gunmetal/95 backdrop-blur-xl shadow-2xl border border-dust-grey/20 dark:border-pale-sky/10"
         style={{ animation: 'zoomIn 0.2s ease-out' }}
       >
@@ -244,7 +245,7 @@ export default function CardEditor({ card, isOpen, onClose, onSave }: CardEditor
                     </option>
                   ))}
                 </select>
-                
+
                 {/* Username de la red social */}
                 <div className="mt-3">
                   <label className="block text-sm font-medium text-gunmetal dark:text-pale-sky mb-2">

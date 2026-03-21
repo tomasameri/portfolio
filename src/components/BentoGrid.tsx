@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { Responsive, LayoutItem, ResponsiveLayouts } from 'react-grid-layout';
 import { BentoCard as BentoCardType } from '@/types/bento';
 import BentoCard from './BentoCard';
+import { useWidth } from '@/hooks/useWidth';
+import { GRID_CONFIG, SIZE_TO_GRID } from '@/lib/grid-config';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
@@ -11,114 +13,140 @@ interface BentoGridProps {
   cards: BentoCardType[];
 }
 
-export default function BentoGrid({ cards }: BentoGridProps) {
-  const [layouts, setLayouts] = useState<ResponsiveLayouts>({
-    lg: [],
-    md: [],
-    sm: [],
-    xs: [],
-  });
+/**
+ * Builds the lg (desktop, 3-col) layout from the stored card.layout data.
+ * Cards without a saved layout get appended below the existing ones
+ * using a simple sequential packer.
+ */
+function buildLgLayout(cards: BentoCardType[]): LayoutItem[] {
+  const lgCols = GRID_CONFIG.cols.lg;
+  const items: LayoutItem[] = [];
 
-  useEffect(() => {
-    // Convertir layouts de las cards a formato React Grid Layout
-    const lgLayouts: LayoutItem[] = cards
-      .filter(card => card.layout)
-      .map(card => ({
-        x: card.layout!.x,
-        y: card.layout!.y,
-        w: card.layout!.w,
-        h: card.layout!.h,
+  // 1. Place cards that have a saved layout
+  for (const card of cards) {
+    if (card.layout) {
+      items.push({
         i: card.id,
-        minW: 1,
-        maxW: 3,
-        minH: 1,
-        maxH: 4,
-      }));
-
-    // Si no hay layouts guardados, usar orden por defecto basado en tamaño
-    if (lgLayouts.length === 0) {
-      const sizeToGridDimensions: Record<string, { w: number; h: number }> = {
-        small: { w: 1, h: 1 },
-        medium: { w: 1, h: 1 },
-        large: { w: 2, h: 2 },
-        wide: { w: 2, h: 1 },
-        tall: { w: 1, h: 2 },
-      };
-      
-      let currentX = 0;
-      let currentY = 0;
-      const cols = 3;
-      
-      cards.forEach((card) => {
-        const dimensions = sizeToGridDimensions[card.size] || { w: 1, h: 1 };
-        if (currentX + dimensions.w > cols) {
-          currentX = 0;
-          currentY += dimensions.h;
-        }
-        lgLayouts.push({
-          x: currentX,
-          y: currentY,
-          w: dimensions.w,
-          h: dimensions.h,
-          i: card.id,
-          minW: 1,
-          maxW: 3,
-          minH: 1,
-          maxH: 4,
-        });
-        currentX += dimensions.w;
-        if (currentX >= cols) {
-          currentX = 0;
-          currentY += dimensions.h;
-        }
+        x: card.layout.x,
+        y: card.layout.y,
+        w: card.layout.w,
+        h: card.layout.h,
+        static: true,
       });
     }
+  }
 
-    const mdLayouts = lgLayouts.map((l) => ({
-      ...l,
-      x: Math.min(l.x, 1),
-      w: Math.min(l.w, 2),
-      maxW: 2,
-    }));
+  // 2. For cards without a saved layout, pack them below the existing ones
+  const cardsWithoutLayout = cards.filter(c => !c.layout);
+  if (cardsWithoutLayout.length > 0) {
+    // Find the max Y extent of already-placed cards
+    let maxY = 0;
+    for (const item of items) {
+      maxY = Math.max(maxY, item.y + item.h);
+    }
 
-    const smLayouts = lgLayouts.map((l, i) => ({
-      ...l,
+    let curX = 0;
+    let curY = maxY;
+
+    for (const card of cardsWithoutLayout) {
+      const dims = SIZE_TO_GRID[card.size] || { w: 1, h: 1 };
+      if (curX + dims.w > lgCols) {
+        curX = 0;
+        curY += 1;
+      }
+      items.push({
+        i: card.id,
+        x: curX,
+        y: curY,
+        w: dims.w,
+        h: dims.h,
+        static: true,
+      });
+      curX += dims.w;
+      if (curX >= lgCols) {
+        curX = 0;
+        curY += dims.h;
+      }
+    }
+  }
+
+  return items;
+}
+
+/**
+ * Derives responsive layouts from the lg (desktop) layout.
+ * - md (2 cols): clamp x and w to fit 2 columns, let RGL re-compact.
+ * - sm/xs (1 col): stack all cards vertically in visual order (sorted by y, then x).
+ */
+function deriveResponsiveLayouts(lgLayout: LayoutItem[]): ResponsiveLayouts {
+  // md: 2 columns — clamp positions
+  const mdLayout: LayoutItem[] = lgLayout.map(item => ({
+    ...item,
+    w: Math.min(item.w, 2),
+    x: Math.min(item.x, 2 - Math.min(item.w, 2)),
+  }));
+
+  // sm/xs: 1 column — stack in reading order (top-left to bottom-right)
+  const sorted = [...lgLayout].sort((a, b) => {
+    if (a.y !== b.y) return a.y - b.y;
+    return a.x - b.x;
+  });
+
+  let stackY = 0;
+  const smLayout: LayoutItem[] = sorted.map(item => {
+    const entry: LayoutItem = {
+      ...item,
       x: 0,
       w: 1,
-      y: i,
-      maxW: 1,
-    }));
+      y: stackY,
+      h: item.h,
+    };
+    stackY += item.h;
+    return entry;
+  });
 
-    const xsLayouts = lgLayouts.map((l, i) => ({
-      ...l,
-      x: 0,
-      w: 1,
-      y: i,
-      maxW: 1,
-    }));
+  return {
+    lg: lgLayout,
+    md: mdLayout,
+    sm: smLayout,
+    xs: smLayout,
+  };
+}
 
-    setLayouts({
-      lg: lgLayouts,
-      md: mdLayouts,
-      sm: smLayouts,
-      xs: xsLayouts,
-    });
+export default function BentoGrid({ cards }: BentoGridProps) {
+  const { width, containerRef, mounted } = useWidth();
+
+  const layouts = useMemo(() => {
+    const lg = buildLgLayout(cards);
+    return deriveResponsiveLayouts(lg);
   }, [cards]);
 
+  // Avoid SSR/hydration mismatch — render nothing until mounted on client
+  if (!mounted) return <div ref={containerRef} className="min-h-[400px]" />;
+
   return (
-    <div className="bento-grid-preview">
+    <div ref={containerRef} className="bento-grid-public">
+      <style jsx global>{`
+        .bento-grid-public .react-grid-placeholder {
+          display: none !important;
+        }
+        .bento-grid-public .react-resizable-handle {
+          display: none !important;
+        }
+      `}</style>
       <Responsive
         className="layout"
         layouts={layouts}
-        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-        cols={{ lg: 3, md: 2, sm: 1, xs: 1, xxs: 1 }}
-        rowHeight={180}
-        margin={[16, 16]}
-        containerPadding={[0, 0]}
+        width={width}
+        breakpoints={GRID_CONFIG.breakpoints}
+        cols={GRID_CONFIG.cols}
+        rowHeight={GRID_CONFIG.rowHeight}
+        margin={GRID_CONFIG.margin}
+        containerPadding={GRID_CONFIG.containerPadding}
         {...({
           isDraggable: false,
           isResizable: false,
-          compactType: "vertical",
+          compactType: GRID_CONFIG.compactType,
           preventCollision: false,
           useCSSTransforms: true,
         } as any)}
@@ -132,4 +160,3 @@ export default function BentoGrid({ cards }: BentoGridProps) {
     </div>
   );
 }
-

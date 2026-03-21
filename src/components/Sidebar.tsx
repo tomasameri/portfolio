@@ -21,15 +21,15 @@ export default function Sidebar() {
       <div className="sticky top-8 space-y-8">
         {/* Profile Image */}
         <div className="flex justify-center md:justify-start">
-              <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-2 border-dust-grey/40 dark:border-pale-sky/15 bg-alice-blue dark:bg-gunmetal shadow-sm">
-                <Image
-                  src="/imagen perfil.jpeg"
-                  alt="Tomas Ameri"
-                  fill
-                  sizes="(max-width: 768px) 128px, 160px"
-                  className="object-cover"
-                  priority
-                />
+          <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-2 border-dust-grey/40 dark:border-pale-sky/15 bg-alice-blue dark:bg-gunmetal shadow-sm">
+            <Image
+              src="/imagen perfil.jpeg"
+              alt="Tomas Ameri"
+              fill
+              sizes="(max-width: 768px) 128px, 160px"
+              className="object-cover"
+              priority
+            />
           </div>
         </div>
 
@@ -47,24 +47,8 @@ export default function Sidebar() {
           </p>
         </div>
 
-        {/* Navigation */}
-        <nav className="space-y-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.id}
-                href={`/${locale}${item.href}`}
-                className="flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gunmetal dark:text-pale-sky hover:bg-dust-grey/20 dark:hover:bg-pale-sky/10 hover:text-cool-sky dark:hover:text-cool-sky transition-colors group"
-              >
-                <Icon className="w-5 h-5 text-gunmetal dark:text-pale-sky group-hover:text-cool-sky dark:group-hover:text-cool-sky group-hover:scale-110 transition-all" />
-                <span className="font-medium text-sm">
-                  {messages.nav[item.id as keyof typeof messages.nav]}
-                </span>
-              </Link>
-            );
-          })}
-        </nav>
+        {/* Navigation - REMOVED as requested, replaced by NavigationSidebar */}
+        <div />
       </div>
     </aside>
   );
