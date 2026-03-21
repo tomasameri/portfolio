@@ -87,16 +87,16 @@ export default function SocialProfilePreview({ platform, username, url, cardSize
   return (
     <div className="flex flex-col items-center justify-center h-full py-2">
       {/* Platform Name header */}
-      <h4 className="text-xs font-bold text-gunmetal/50 dark:text-pale-sky/50 tracking-wider uppercase mb-2">
+      <h4 className="text-xs font-label font-medium text-on-surface-muted tracking-wider uppercase mb-2">
         {platformName}
       </h4>
 
       {shouldShowImagePreview && loading ? (
-        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cool-sky/20 to-cool-sky/40 dark:from-cool-sky/30 dark:to-cool-sky/50 mb-2 flex items-center justify-center border-2 border-cool-sky/30 animate-pulse">
+        <div className="w-20 h-20 rounded-full bg-accent-container mb-2 flex items-center justify-center border-2 border-accent/20 animate-pulse text-accent">
           <SocialIcon platform={platform} size={40} />
         </div>
       ) : shouldShowImagePreview && profileImage ? (
-        <div className="relative w-20 h-20 rounded-full mb-2 overflow-hidden border-2 border-cool-sky/30 shadow-md">
+        <div className="relative w-20 h-20 rounded-full mb-2 overflow-hidden ring-2 ring-accent/20 shadow-sm">
           {profileImage.endsWith('.svg') || profileImage.includes('dicebear') ? (
             <img
               src={profileImage}
@@ -115,13 +115,13 @@ export default function SocialProfilePreview({ platform, username, url, cardSize
           )}
         </div>
       ) : (
-        <div className={`${shouldShowImagePreview ? 'w-20 h-20 mb-2' : 'w-10 h-10 mb-1'} rounded-full bg-gradient-to-br from-cool-sky/20 to-cool-sky/40 dark:from-cool-sky/30 dark:to-cool-sky/50 flex items-center justify-center border-2 border-cool-sky/30`}>
+        <div className={`${shouldShowImagePreview ? 'w-20 h-20 mb-2' : 'w-10 h-10 mb-1'} rounded-full bg-accent-container flex items-center justify-center text-accent ring-2 ring-accent/20`}>
           <SocialIcon platform={platform} size={shouldShowImagePreview ? 40 : 20} />
         </div>
       )}
 
       {username && (
-        <p className={`${shouldShowImagePreview ? 'text-sm' : 'text-xs'} font-bold text-gunmetal dark:text-alice-blue`}>
+        <p className={`${shouldShowImagePreview ? 'text-sm' : 'text-xs'} font-body font-bold text-on-surface`}>
           {username}
         </p>
       )}

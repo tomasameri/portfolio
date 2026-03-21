@@ -1,9 +1,8 @@
 import { LocaleProvider } from "@/context/LocaleContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { AuthProvider } from "@/context/AuthContext";
-import ThemeToggle from "@/components/ThemeToggle";
-import LocaleToggle from "@/components/LocaleToggle";
 import NavigationSidebar from "@/components/NavigationSidebar";
+import SettingsDock from "@/components/SettingsDock";
 
 export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'es' }];
@@ -23,10 +22,10 @@ export default async function LangLayout({
     <ThemeProvider>
       <AuthProvider>
         <LocaleProvider lang={locale}>
-          <div className="min-h-screen bg-pale-sky dark:bg-gunmetal transition-colors duration-200">
+          {/* Replaced hardcoded pale-sky/gunmetal with tonal surface */}
+          <div className="min-h-screen bg-surface transition-colors duration-200">
             <NavigationSidebar />
-            <ThemeToggle />
-            <LocaleToggle />
+            <SettingsDock />
             <main className="transition-colors duration-200">
               {children}
             </main>

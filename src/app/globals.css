@@ -237,25 +237,77 @@
 }
 
 @theme {
+  /* ─── Legacy (admin panel backward compatibility) ─── */
   --color-alice-blue: #e8eef2;
   --color-dust-grey: #d6c9c9;
-  --color-pale-sky: #c7d3dd;    /* Light/Claro */
+  --color-pale-sky: #c7d3dd;
   --color-cool-sky: #77b6ea;
-  --color-gunmetal: #37393a;     /* Dark/Oscuro */
-  
+  --color-gunmetal: #37393a;
+
+  /* ─── Tonal Surface System ─── */
+  --color-surface: var(--ds-surface);
+  --color-surface-container-low: var(--ds-surface-container-low);
+  --color-surface-container: var(--ds-surface-container);
+  --color-surface-container-high: var(--ds-surface-container-high);
+  --color-surface-container-highest: var(--ds-surface-container-highest);
+
+  --color-on-surface: var(--ds-on-surface);
+  --color-on-surface-variant: var(--ds-on-surface-variant);
+  --color-on-surface-muted: var(--ds-on-surface-muted);
+
+  --color-accent: var(--ds-accent);
+  --color-accent-container: var(--ds-accent-container);
+  --color-accent-muted: var(--ds-accent-muted);
+
+  /* ─── Typography ─── */
+  --font-family-display: var(--font-plus-jakarta-sans), system-ui, sans-serif;
+  --font-family-body: var(--font-manrope), system-ui, sans-serif;
+  --font-family-label: var(--font-space-grotesk), system-ui, sans-serif;
   --font-family-sans: var(--font-anonymous-pro);
 }
 
+/* ─── Dark mode (default editorial experience) ─── */
 :root {
-  --foreground-rgb: 55, 57, 58; /* gunmetal */
-  --background-start-rgb: 199, 211, 221; /* pale-sky */
-  --background-end-rgb: 232, 238, 242; /* alice-blue */
+  --ds-surface:                    #0d0f0c;
+  --ds-surface-container-low:      #161816;
+  --ds-surface-container:          #1e201e;
+  --ds-surface-container-high:     #282a28;
+  --ds-surface-container-highest:  #333533;
+
+  --ds-on-surface:          #e2e3de;
+  --ds-on-surface-variant:  #c3c7c0;
+  --ds-on-surface-muted:    #8a8e87;
+
+  --ds-accent:              #77b6ea;
+  --ds-accent-container:    #1a2a3a;
+  --ds-accent-muted:        #4a7aa0;
+
+  --foreground-rgb: 55, 57, 58;
+  --background-start-rgb: 199, 211, 221;
+  --background-end-rgb: 232, 238, 242;
+}
+
+/* ─── Light mode overrides ─── */
+:root:not(.dark) {
+  --ds-surface:                    #f5f6f3;
+  --ds-surface-container-low:      #edeee9;
+  --ds-surface-container:          #e4e6e1;
+  --ds-surface-container-high:     #d9dbd6;
+  --ds-surface-container-highest:  #cfd1cc;
+
+  --ds-on-surface:          #1a1c1a;
+  --ds-on-surface-variant:  #44474a;
+  --ds-on-surface-muted:    #74776f;
+
+  --ds-accent:              #4a90c4;
+  --ds-accent-container:    #dce8f5;
+  --ds-accent-muted:        #6b9ec7;
 }
 
 .dark {
-  --foreground-rgb: 199, 211, 221; /* pale-sky */
-  --background-start-rgb: 55, 57, 58; /* gunmetal */
-  --background-end-rgb: 55, 57, 58; /* gunmetal */
+  --foreground-rgb: 199, 211, 221;
+  --background-start-rgb: 55, 57, 58;
+  --background-end-rgb: 55, 57, 58;
 }
 
 @layer base {
@@ -337,20 +389,12 @@
   }
 
   .prose a {
-    color: #77b6ea;
+    color: var(--ds-accent);
     font-weight: 500;
   }
   
   .prose a:hover {
-    color: #37393a;
-  }
-  
-  .dark .prose a {
-    color: #77b6ea;
-  }
-  
-  .dark .prose a:hover {
-    color: #e8eef2;
+    color: var(--ds-on-surface);
   }
 
   .prose h1, 
@@ -359,48 +403,39 @@
   .prose h4, 
   .prose h5, 
   .prose h6 {
-    color: #37393a;
+    color: var(--ds-on-surface);
+    font-family: var(--font-family-display);
+    font-weight: 700;
+    letter-spacing: -0.02em;
   }
-  
-  .dark .prose h1,
-  .dark .prose h2,
-  .dark .prose h3,
-  .dark .prose h4,
-  .dark .prose h5,
-  .dark .prose h6 {
-    color: #e8eef2;
+
+  .prose p,
+  .prose ul,
+  .prose ol,
+  .prose li {
+    color: var(--ds-on-surface-variant);
+    font-family: var(--font-family-body);
   }
 }
 
-/* Custom scrollbar */
+/* ─── Custom Scrollbar (uses new tokens) ─── */
 ::-webkit-scrollbar {
   width: 0.5rem;
   height: 0.5rem;
 }
 
 ::-webkit-scrollbar-track {
-  background-color: rgba(199, 211, 221, 0.3);
-}
-
-.dark ::-webkit-scrollbar-track {
-  background-color: rgba(55, 57, 58, 0.3);
+  background-color: var(--ds-surface-container-low);
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(119, 182, 234, 0.5);
-  border-radius: 9999px;
+  background-color: var(--ds-surface-container-high);
+  border-radius: var(--radius-tag, 9999px);
+  border: 2px solid var(--ds-surface-container-low);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(119, 182, 234, 0.7);
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background-color: rgba(119, 182, 234, 0.5);
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(119, 182, 234, 0.7);
+  background-color: var(--ds-accent-muted);
 }
 
 @layer components {
@@ -531,4 +566,17 @@ select {
 
 .dark select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2377b6ea' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+}
+
+/* ─── React Grid Layout Drag Fixes ─── */
+.react-grid-item.react-draggable-dragging {
+  /* Suppress all CSS transitions while item is being dragged to prevent coordinate conflicts */
+  transition: box-shadow 0.2s ease, z-index 0s, border 0.2s ease, opacity 0.2s ease !important;
+  z-index: 100 !important;
+}
+
+.react-grid-item {
+  /* Ensure the RGL wrapper never has global position/transform transitions competing with React-Draggable */
+  transition: transform 0.2s ease, width 0.2s ease, height 0.2s ease !important;
+  will-change: transform;
 }

@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, memo, useMemo } from 'react';
 import { BentoCardSize } from '@/types/bento';
 import { Responsive, Layout, LayoutItem, ResponsiveLayouts } from 'react-grid-layout';
 import { BentoCard, CardLayout } from '@/types/bento';
 import { useWidth } from '@/hooks/useWidth';
 import { GRID_CONFIG, SIZE_TO_GRID } from '@/lib/grid-config';
+import { buildLgLayout, deriveResponsiveLayouts } from '@/lib/grid-packer';
 import {
   getCards,
   createCard,
@@ -20,109 +21,9 @@ import SocialProfilePreview from '@/components/SocialProfilePreview';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
-// ─── Layout helpers ──────────────────────────────────────────────────────
+// ─── Constants ───────────────────────────────────────────────────────────
 
-/**
- * Build the full lg LayoutItem[] from a list of cards.
- * Cards with a saved layout use their stored coordinates.
- * Cards without a layout are appended below existing content.
- */
-function buildLgLayout(cards: BentoCard[]): LayoutItem[] {
-  const lgCols = GRID_CONFIG.cols.lg;
-  const items: LayoutItem[] = [];
-
-  // 1. Place cards that already have a persisted layout
-  for (const card of cards) {
-    if (card.layout) {
-      items.push({
-        i: card.id,
-        x: card.layout.x,
-        y: card.layout.y,
-        w: card.layout.w,
-        h: card.layout.h,
-        minW: 1,
-        maxW: lgCols,
-        minH: 1,
-        maxH: 3,
-      });
-    }
-  }
-
-  // 2. Pack cards without a layout below the existing ones
-  const cardsWithoutLayout = cards.filter(c => !c.layout);
-  if (cardsWithoutLayout.length > 0) {
-    let maxY = 0;
-    for (const item of items) {
-      maxY = Math.max(maxY, item.y + item.h);
-    }
-
-    let curX = 0;
-    let curY = maxY;
-
-    for (const card of cardsWithoutLayout) {
-      const dims = SIZE_TO_GRID[card.size] || { w: 1, h: 1 };
-      if (curX + dims.w > lgCols) {
-        curX = 0;
-        curY += 1;
-      }
-      items.push({
-        i: card.id,
-        x: curX,
-        y: curY,
-        w: dims.w,
-        h: dims.h,
-        minW: 1,
-        maxW: lgCols,
-        minH: 1,
-        maxH: 3,
-      });
-      curX += dims.w;
-      if (curX >= lgCols) {
-        curX = 0;
-        curY += dims.h;
-      }
-    }
-  }
-
-  return items;
-}
-
-/**
- * Derive responsive breakpoint layouts from the desktop (lg) layout.
- */
-function deriveResponsiveLayouts(lgLayout: LayoutItem[]): ResponsiveLayouts {
-  const mdLayout: LayoutItem[] = lgLayout.map(item => ({
-    ...item,
-    w: Math.min(item.w, 2),
-    x: Math.min(item.x, 2 - Math.min(item.w, 2)),
-    maxW: 2,
-  }));
-
-  const sorted = [...lgLayout].sort((a, b) => {
-    if (a.y !== b.y) return a.y - b.y;
-    return a.x - b.x;
-  });
-
-  let stackY = 0;
-  const smLayout: LayoutItem[] = sorted.map(item => {
-    const entry: LayoutItem = {
-      ...item,
-      x: 0,
-      w: 1,
-      y: stackY,
-      maxW: 1,
-    };
-    stackY += item.h;
-    return entry;
-  });
-
-  return {
-    lg: lgLayout,
-    md: mdLayout,
-    sm: smLayout,
-    xs: smLayout,
-  };
-}
+const ADMIN_CONTAINER_PADDING: [number, number] = [20, 20];
 
 // ─── CardItem sub-component ──────────────────────────────────────────────
 
@@ -141,7 +42,7 @@ interface CardItemProps {
   onSizeChange?: (cardId: string, newSize: BentoCardSize) => void;
 }
 
-function CardItem({ card, onEdit, onDelete, onSizeChange }: CardItemProps) {
+const CardItem = memo(function CardItem({ card, onEdit, onDelete, onSizeChange }: CardItemProps) {
   const [showSizeSelector, setShowSizeSelector] = useState(false);
   const [isCardSelected, setIsCardSelected] = useState(false);
 
@@ -346,7 +247,7 @@ function CardItem({ card, onEdit, onDelete, onSizeChange }: CardItemProps) {
       </div>
     </div>
   );
-}
+});
 
 // ─── Main component ──────────────────────────────────────────────────────
 
@@ -365,6 +266,10 @@ export default function CardManagerRGL() {
     lgLayoutRef.current = (layouts.lg || []) as LayoutItem[];
   }, [layouts]);
 
+  // ── Guards to prevent layout reset on mount / breakpoint transitions ──
+  const isInitialMount = useRef(true);
+  const currentBreakpoint = useRef('lg');
+
   // ── Initial data load ──
   useEffect(() => {
     loadCards();
@@ -373,11 +278,19 @@ export default function CardManagerRGL() {
   const loadCards = async () => {
     try {
       setLoading(true);
+      isInitialMount.current = true; // Gate onLayoutChange while we set up
       const fetchedCards = await getCards();
       setCards(fetchedCards);
 
-      const lgLayout = buildLgLayout(fetchedCards);
+      const lgLayout = buildLgLayout(fetchedCards, {
+        extraProps: { minW: 1, maxW: GRID_CONFIG.cols.lg, minH: 1, maxH: 3 },
+      });
       setLayouts(deriveResponsiveLayouts(lgLayout));
+
+      // Allow onLayoutChange to run only after RGL has rendered with our layout
+      requestAnimationFrame(() => {
+        isInitialMount.current = false;
+      });
     } catch (error) {
       console.error('Error loading cards:', error);
       alert('Error al cargar las cards');
@@ -386,19 +299,39 @@ export default function CardManagerRGL() {
     }
   };
 
-  // ── Persist ALL card positions to DB ──
+  // ── Persist ALL card positions to DB and sync local cards state ──
   const persistLayout = useCallback(async (layout: LayoutItem[]) => {
     setSavingLayout(true);
     try {
+      const clampedLayout = layout.map(item => ({
+        i: item.i,
+        x: Math.max(0, Math.min(10, Math.round(item.x))),
+        y: Math.max(0, Math.min(100, Math.round(item.y))),
+        w: Math.max(1, Math.min(GRID_CONFIG.cols.lg, Math.round(item.w))),
+        h: Math.max(1, Math.min(3, Math.round(item.h))),
+      }));
+
       await Promise.all(
-        layout.map(item =>
+        clampedLayout.map(item =>
           updateCardLayout(item.i, {
-            x: Math.max(0, Math.min(10, Math.round(item.x))),
-            y: Math.max(0, Math.min(100, Math.round(item.y))),
-            w: Math.max(1, Math.min(3, Math.round(item.w))),
-            h: Math.max(1, Math.min(3, Math.round(item.h))),
+            x: item.x,
+            y: item.y,
+            w: item.w,
+            h: item.h,
           })
         )
+      );
+
+      // Keep card.layout in sync so future buildLgLayout calls use fresh positions
+      setCards(prev =>
+        prev.map(card => {
+          const item = clampedLayout.find(l => l.i === card.id);
+          if (!item) return card;
+          return {
+            ...card,
+            layout: { x: item.x, y: item.y, w: item.w, h: item.h, i: card.id },
+          };
+        })
       );
     } catch (err) {
       console.error('Failed to persist layout:', err);
@@ -407,29 +340,42 @@ export default function CardManagerRGL() {
     }
   }, []);
 
-  // ── onDragStop: persist immediately when user finishes dragging ──
-  const handleDragStop = useCallback(
-    (layout: Layout, _oldItem: LayoutItem, _newItem: LayoutItem) => {
-      const lgLayout = layout as LayoutItem[];
-      setLayouts(prev => ({
-        ...prev,
-        ...deriveResponsiveLayouts(lgLayout),
-      }));
-      persistLayout(lgLayout);
+  const isDraggingRef = useRef(false);
+
+  // ── Sync local state without destroying RGL during active drags ──
+  const handleLayoutChange = useCallback(
+    (_currentLayout: Layout, allLayouts: ResponsiveLayouts) => {
+      // Prevents React from tearing dragging DOM frames
+      if (isInitialMount.current) return;
+      if (isDraggingRef.current) return; 
+
+      if (allLayouts && Object.keys(allLayouts).length > 0) {
+        setLayouts(allLayouts);
+        
+        // Grab the authoritative LG layout from RGL memory to persist to database
+        const authLg = allLayouts.lg || [];
+        if (authLg.length > 0) {
+          persistLayout([...authLg] as LayoutItem[]);
+        }
+      }
     },
     [persistLayout]
   );
 
-  // ── onLayoutChange: keep local state in sync (for breakpoint transitions) ──
-  // This does NOT persist to DB — only onDragStop does that.
-  const handleLayoutChange = useCallback(
-    (_currentLayout: Layout, allLayouts: ResponsiveLayouts) => {
-      if (_currentLayout && _currentLayout.length > 0) {
-        setLayouts(allLayouts);
-      }
-    },
-    []
-  );
+  const handleDragStart = useCallback(() => {
+    isDraggingRef.current = true;
+  }, []);
+
+  const handleDragStop = useCallback(() => {
+    isDraggingRef.current = false;
+    // Note: RGL internally fires onLayoutChange IMMEDIATELY after onDragStop. 
+    // Since flag is now false, that cycle handles the sync. 
+  }, []);
+
+  // ── Track breakpoint changes ──
+  const handleBreakpointChange = useCallback((newBreakpoint: string) => {
+    currentBreakpoint.current = newBreakpoint;
+  }, []);
 
   // ── Card CRUD ──
 
@@ -564,6 +510,25 @@ export default function CardManagerRGL() {
     }
   };
 
+  const memoizedGridChildren = useMemo(() => {
+    return cards.map((card) => (
+      <div
+        key={card.id}
+        className="bg-transparent overflow-visible group-card-wrapper"
+      >
+        <CardItem
+          card={card}
+          onEdit={handleEdit}
+          onDelete={handleRequestDelete}
+          onSizeChange={handleSizeChange}
+        />
+      </div>
+    ));
+    // We intentionally omit handleEdit, onDelete, and handleSizeChange from deps.
+    // They are stable via their internal functional state architectures (`setCards(prev => ...)`).
+    // `cards` array mutation is the only thing that should rebuild the DOM matrices.
+  }, [cards]);
+
   // ── Render ──
 
   if (!mounted) return null;
@@ -610,7 +575,7 @@ export default function CardManagerRGL() {
           cols={GRID_CONFIG.cols}
           rowHeight={GRID_CONFIG.rowHeight}
           margin={GRID_CONFIG.margin}
-          containerPadding={[20, 20]}
+          containerPadding={ADMIN_CONTAINER_PADDING}
           measureBeforeMount={true}
           {...({
             compactType: GRID_CONFIG.compactType,
@@ -621,24 +586,24 @@ export default function CardManagerRGL() {
             isBounded: false,
             allowOverlap: false,
             draggableCancel: '.no-drag, button, .size-selector-container',
-            onDragStop: handleDragStop,
-            onLayoutChange: handleLayoutChange,
+            onDragStart: (layout: any, oldItem: any, newItem: any) => {
+              handleDragStart();
+            },
+            onDrag: (layout: any, oldItem: any, newItem: any) => {
+              // Intentionally blank
+            },
+            onDragStop: (layout: any, oldItem: any, newItem: any) => {
+               handleDragStop();
+            },
+            onLayoutChange: (currentLayout: LayoutItem[], allLayouts: ResponsiveLayouts) => {
+               handleLayoutChange(currentLayout, allLayouts);
+            },
+            onBreakpointChange: (newBreakpoint: string) => {
+               handleBreakpointChange(newBreakpoint);
+            },
           } as any)}
         >
-          {cards.map((card) => (
-            <div
-              key={card.id}
-              className="bg-transparent"
-              style={{ overflow: 'visible' }}
-            >
-              <CardItem
-                card={card}
-                onEdit={handleEdit}
-                onDelete={handleRequestDelete}
-                onSizeChange={handleSizeChange}
-              />
-            </div>
-          ))}
+          {memoizedGridChildren}
         </Responsive>
       </div>
 

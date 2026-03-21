@@ -36,24 +36,24 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="min-h-screen py-12 flex items-center justify-center">
-        <div className="text-gunmetal dark:text-pale-sky">{messages.home.loading}</div>
+      <div className="min-h-screen py-24 flex items-center justify-center">
+        <div className="text-on-surface-muted font-body animate-pulse">{messages.home.loading}</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen py-12 flex items-center justify-center">
-        <div className="text-red-500">{messages.home.error}</div>
+      <div className="min-h-screen py-24 flex items-center justify-center">
+        <div className="text-red-500 font-body">{messages.home.error}</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row gap-12">
+    <div className="min-h-screen py-16 md:py-24">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+        <div className="flex flex-col lg:flex-row gap-16 lg:gap-24">
           {/* Sidebar */}
           <Sidebar />
 
@@ -62,8 +62,8 @@ export default function Home() {
             {cards.length > 0 ? (
               <BentoGrid cards={cards} />
             ) : !loading ? (
-              <div className="text-center py-12 text-gunmetal/70 dark:text-pale-sky/70">
-                <p className="mb-2">{messages.home.noCards}</p>
+              <div className="text-center py-24 text-on-surface-muted">
+                <p className="mb-2 font-body text-body-lg">{messages.home.noCards}</p>
               </div>
             ) : null}
           </div>

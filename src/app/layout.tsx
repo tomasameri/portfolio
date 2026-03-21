@@ -1,9 +1,32 @@
 // src/app/layout.tsx
 import type { Metadata } from 'next';
-import { Anonymous_Pro } from 'next/font/google';
+import { Plus_Jakarta_Sans, Manrope, Space_Grotesk, Anonymous_Pro } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
 
+// ─── Editorial Design System Fonts ───────────────────────────────────────
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['600', '700', '800'],
+  variable: '--font-plus-jakarta-sans',
+  display: 'swap',
+});
+
+const manrope = Manrope({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-manrope',
+  display: 'swap',
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-space-grotesk',
+  display: 'swap',
+});
+
+// Legacy font — kept for admin panel backward compatibility
 const anonymousPro = Anonymous_Pro({
   weight: ['400', '700'],
   subsets: ['latin'],
@@ -23,8 +46,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${anonymousPro.variable}`} suppressHydrationWarning>
-      <body className="min-h-screen">
+    <html
+      lang="en"
+      className={`${plusJakarta.variable} ${manrope.variable} ${spaceGrotesk.variable} ${anonymousPro.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="min-h-screen font-body">
         <Providers>
           {children}
         </Providers>

@@ -1,6 +1,6 @@
 export type BentoCardSize = 'small' | 'medium' | 'large' | 'wide' | 'tall';
 
-export type BentoCardType = 'link' | 'image' | 'text' | 'social' | 'youtube' | 'custom' | 'spotify';
+export type BentoCardType = 'social' | 'link' | 'image' | 'text';
 
 export type CardGroupType = 'social' | 'projects' | 'blog' | 'contact';
 
@@ -17,6 +17,7 @@ export interface BentoCard {
   id: string;
   type: BentoCardType;
   size: BentoCardSize;
+  order?: number; // Optional metadata for tracking array index position
   title?: string;
   description?: string;
   url?: string;

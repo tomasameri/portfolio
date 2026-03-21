@@ -1,16 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
 import { useLocale } from '@/context/LocaleContext';
-import { FiUser, FiFileText, FiBriefcase, FiBook, FiMail } from 'react-icons/fi';
-
-const navItems = [
-  { id: 'about', icon: FiUser, href: '/about' },
-  { id: 'projects', icon: FiBriefcase, href: '/projects' },
-  { id: 'blog', icon: FiBook, href: '/blog' },
-  { id: 'contact', icon: FiMail, href: '/contact' },
-];
 
 export default function Sidebar() {
   const { locale, messages } = useLocale();
@@ -19,9 +10,9 @@ export default function Sidebar() {
   return (
     <aside className="w-full md:w-64 lg:w-80 flex-shrink-0">
       <div className="sticky top-8 space-y-8">
-        {/* Profile Image */}
+        {/* Profile Image — tonal, no hard border */}
         <div className="flex justify-center md:justify-start">
-          <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-2 border-dust-grey/40 dark:border-pale-sky/15 bg-alice-blue dark:bg-gunmetal shadow-sm">
+          <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden bg-surface-container ring-2 ring-on-surface-muted/10">
             <Image
               src="/imagen perfil.jpeg"
               alt="Tomas Ameri"
@@ -33,24 +24,22 @@ export default function Sidebar() {
           </div>
         </div>
 
-        {/* Name */}
+        {/* Name — Editorial display */}
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-gunmetal dark:text-alice-blue">
+          <h1 className="font-display text-display-md text-on-surface tracking-tight">
             Tomas Ameri
           </h1>
         </div>
 
-        {/* Quote */}
-        <div className="border-l-2 border-cool-sky/40 dark:border-cool-sky/30 pl-4">
-          <p className="text-gunmetal/70 dark:text-pale-sky/80 italic text-sm md:text-base leading-relaxed">
+        {/* Quote — Editorial blockquote */}
+        <blockquote className="pl-5 border-l-2 border-accent/30">
+          <p className="font-body text-body-lg text-on-surface-variant italic leading-relaxed">
             &quot;{quote}&quot;
           </p>
-        </div>
+        </blockquote>
 
-        {/* Navigation - REMOVED as requested, replaced by NavigationSidebar */}
         <div />
       </div>
     </aside>
   );
 }
-

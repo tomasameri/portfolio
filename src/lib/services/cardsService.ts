@@ -14,6 +14,7 @@ export interface CardDocument {
   imageAsBackground?: boolean;
   icon?: string;
   order: number;
+  color?: string;
   // Campos de layout para React Grid Layout
   layoutX?: number;
   layoutY?: number;
@@ -51,20 +52,38 @@ function isAuthError(error: any): boolean {
 
 // Convertir documento de Appwrite a BentoCard
 function documentToCard(doc: CardDocument): BentoCard {
+  // Runtime Schema Migration for deprecated types
+  let migratedType = doc.type as BentoCard['type'];
+  let migratedPlatform = doc.socialPlatform as BentoCard['socialPlatform'];
+  
+  if (doc.type === 'youtube') {
+    if (doc.socialUsername) {
+      migratedType = 'social';
+      migratedPlatform = 'youtube';
+    } else {
+      migratedType = 'link';
+    }
+  } else if (doc.type === 'spotify') {
+    migratedType = 'link';
+  } else if (doc.type === 'custom') {
+    migratedType = 'text';
+  }
+
   const card: BentoCard = {
     id: doc.$id,
-    type: doc.type as BentoCard['type'],
+    type: migratedType,
     size: doc.size as BentoCard['size'],
+    order: doc.order,
     title: doc.title,
     description: doc.description,
     url: doc.url,
-    socialPlatform: doc.socialPlatform as BentoCard['socialPlatform'],
+    socialPlatform: migratedPlatform,
     socialUsername: doc.socialUsername,
     image: doc.image,
     imageAsBackground: doc.imageAsBackground || false,
     icon: doc.icon,
+    color: doc.color,
   };
-  
   // Agregar layout si existe (Appwrite returns null for unset fields, not undefined)
   if (doc.layoutX != null && doc.layoutY != null && doc.layoutW != null && doc.layoutH != null) {
     card.layout = {
@@ -96,6 +115,7 @@ function cardToDocument(card: Partial<BentoCard>, order?: number): Partial<CardD
   if (card.image !== undefined && card.image !== null) doc.image = card.image;
   if (card.imageAsBackground !== undefined && card.imageAsBackground !== null) doc.imageAsBackground = card.imageAsBackground;
   if (card.icon !== undefined && card.icon !== null && typeof card.icon === 'string') doc.icon = card.icon;
+  if (card.color !== undefined && card.color !== null) doc.color = card.color;
   
   return doc;
 }
