@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaEnvelope, FaMapMarkerAlt, FaPaperPlane } from 'react-icons/fa';
 import SocialIcon from '@/components/SocialIcon';
@@ -12,6 +12,68 @@ import Card from '@/components/ui/Card';
 export default function ContactPage() {
   const { messages } = useLocale();
   const t = messages.contact;
+
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.id]: e.target.value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validación customizada en cliente
+    const newErrors: Record<string, string> = {};
+    if (!formData.name.trim()) newErrors.name = 'Por favor, ingresa tu nombre.';
+    if (!formData.email.trim()) newErrors.email = 'El email es obligatorio.';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Ingresa un email válido.';
+    if (!formData.subject.trim()) newErrors.subject = 'No olvides el asunto.';
+    if (!formData.message.trim()) newErrors.message = 'Escribe un mensaje para enviar.';
+
+    setErrors({});
+    if (Object.keys(newErrors).length > 0) {
+      setTimeout(() => setErrors(newErrors), 10);
+      return;
+    }
+
+    setStatus('loading');
+    setErrorMessage('');
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'No se pudo enviar el mensaje.');
+      }
+
+      setStatus('success');
+      setFormData({ name: '', email: '', subject: '', message: '' });
+      
+      // Limpiar mensaje de éxito después de unos segundos
+      setTimeout(() => setStatus('idle'), 5000);
+    } catch (error: any) {
+      console.error('Error enviando formulario:', error);
+      setStatus('error');
+      setErrorMessage(error.message || 'Error desconocido.');
+    }
+  };
 
   return (
     <div className="min-h-screen w-full relative overflow-hidden flex items-center justify-center p-6 py-24">
@@ -97,56 +159,82 @@ export default function ContactPage() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="w-full"
           >
-            <Card className="p-8 md:p-12 relative overflow-hidden ring-1 ring-on-surface-muted/10">
+            <Card className="rounded-[2rem] p-8 md:p-12 relative overflow-hidden ring-1 ring-on-surface-muted/10">
               {/* Highlight gradient effect on form */}
               <div className="absolute -top-24 -right-24 w-48 h-48 bg-accent/5 rounded-full blur-[60px]" />
 
-              <form className="space-y-6 relative z-10" onSubmit={(e) => e.preventDefault()}>
+              <form className="space-y-6 relative z-10" onSubmit={handleSubmit} noValidate>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
+                  <motion.div className="space-y-2" animate={errors.name ? { x: [-5, 5, -5, 5, 0], transition: { duration: 0.4 } } : {}}>
                     <label htmlFor="name" className="text-sm font-label text-on-surface-variant mb-1 block">{t.form.nameLabel}</label>
                     <input
                       type="text"
                       id="name"
+                      value={formData.name}
+                      onChange={handleChange}
                       placeholder={t.form.namePlaceholder}
-                      className="w-full px-5 py-4 bg-surface-container border-none ring-1 ring-on-surface-muted/10 rounded-xl focus:ring-2 focus:ring-accent outline-none transition-all placeholder:text-on-surface-muted text-on-surface font-body"
+                      className={`w-full px-5 py-4 bg-surface-container border-none ring-1 ${errors.name ? 'ring-red-400 focus:ring-red-500' : 'ring-on-surface-muted/10 focus:ring-accent'} rounded-xl focus:ring-2 outline-none transition-all placeholder:text-on-surface-muted text-on-surface font-body`}
                     />
-                  </div>
-                  <div className="space-y-2">
+                    {errors.name && <p className="text-xs text-red-500 font-medium mt-1">{errors.name}</p>}
+                  </motion.div>
+                  <motion.div className="space-y-2" animate={errors.email ? { x: [-5, 5, -5, 5, 0], transition: { duration: 0.4 } } : {}}>
                     <label htmlFor="email" className="text-sm font-label text-on-surface-variant mb-1 block">{t.form.emailLabel}</label>
                     <input
                       type="email"
                       id="email"
+                      value={formData.email}
+                      onChange={handleChange}
                       placeholder={t.form.emailPlaceholder}
-                      className="w-full px-5 py-4 bg-surface-container border-none ring-1 ring-on-surface-muted/10 rounded-xl focus:ring-2 focus:ring-accent outline-none transition-all placeholder:text-on-surface-muted text-on-surface font-body"
+                      className={`w-full px-5 py-4 bg-surface-container border-none ring-1 ${errors.email ? 'ring-red-400 focus:ring-red-500' : 'ring-on-surface-muted/10 focus:ring-accent'} rounded-xl focus:ring-2 outline-none transition-all placeholder:text-on-surface-muted text-on-surface font-body`}
                     />
-                  </div>
+                    {errors.email && <p className="text-xs text-red-500 font-medium mt-1">{errors.email}</p>}
+                  </motion.div>
                 </div>
 
-                <div className="space-y-2">
+                <motion.div className="space-y-2" animate={errors.subject ? { x: [-5, 5, -5, 5, 0], transition: { duration: 0.4 } } : {}}>
                   <label htmlFor="subject" className="text-sm font-label text-on-surface-variant mb-1 block">{t.form.subjectLabel}</label>
                   <input
                     type="text"
                     id="subject"
+                    value={formData.subject}
+                    onChange={handleChange}
                     placeholder={t.form.subjectPlaceholder}
-                    className="w-full px-5 py-4 bg-surface-container border-none ring-1 ring-on-surface-muted/10 rounded-xl focus:ring-2 focus:ring-accent outline-none transition-all placeholder:text-on-surface-muted text-on-surface font-body"
+                    className={`w-full px-5 py-4 bg-surface-container border-none ring-1 ${errors.subject ? 'ring-red-400 focus:ring-red-500' : 'ring-on-surface-muted/10 focus:ring-accent'} rounded-xl focus:ring-2 outline-none transition-all placeholder:text-on-surface-muted text-on-surface font-body`}
                   />
-                </div>
+                  {errors.subject && <p className="text-xs text-red-500 font-medium mt-1">{errors.subject}</p>}
+                </motion.div>
 
-                <div className="space-y-2">
+                <motion.div className="space-y-2" animate={errors.message ? { x: [-5, 5, -5, 5, 0], transition: { duration: 0.4 } } : {}}>
                   <label htmlFor="message" className="text-sm font-label text-on-surface-variant mb-1 block">{t.form.messageLabel}</label>
                   <textarea
                     id="message"
                     rows={4}
+                    value={formData.message}
+                    onChange={handleChange}
                     placeholder={t.form.messagePlaceholder}
-                    className="w-full px-5 py-4 bg-surface-container border-none ring-1 ring-on-surface-muted/10 rounded-xl focus:ring-2 focus:ring-accent outline-none transition-all placeholder:text-on-surface-muted text-on-surface font-body resize-none"
+                    className={`w-full px-5 py-4 bg-surface-container border-none ring-1 ${errors.message ? 'ring-red-400 focus:ring-red-500' : 'ring-on-surface-muted/10 focus:ring-accent'} rounded-xl focus:ring-2 outline-none transition-all placeholder:text-on-surface-muted text-on-surface font-body resize-none`}
                   />
-                </div>
+                  {errors.message && <p className="text-xs text-red-500 font-medium mt-1">{errors.message}</p>}
+                </motion.div>
 
-                <PrimaryButton type="submit" className="w-full py-4 mt-4 group">
-                  <span className="font-label tracking-wide uppercase">{t.form.submitButton}</span>
-                  <FaPaperPlane className="ml-2 text-sm group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                <PrimaryButton type="submit" className="w-full py-4 mt-4 group" disabled={status === 'loading'}>
+                  <span className="font-label tracking-wide uppercase">
+                    {status === 'loading' ? 'Enviando...' : t.form.submitButton}
+                  </span>
+                  <FaPaperPlane className={`ml-2 text-sm ${status !== 'loading' ? 'group-hover:translate-x-1 group-hover:-translate-y-1' : ''} transition-transform`} />
                 </PrimaryButton>
+
+                {/* Mensajes de feedback */}
+                {status === 'success' && (
+                  <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-xl text-green-500 text-sm font-body mt-4">
+                    ¡Mensaje enviado con éxito! Te responderé lo antes posible.
+                  </div>
+                )}
+                {status === 'error' && (
+                  <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm font-body mt-4">
+                    {errorMessage}
+                  </div>
+                )}
               </form>
             </Card>
           </motion.div>

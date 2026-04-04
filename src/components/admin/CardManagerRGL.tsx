@@ -18,6 +18,7 @@ import CardEditor from './CardEditor';
 import ConfirmationModal from './ConfirmationModal';
 import SocialIcon from '@/components/SocialIcon';
 import SocialProfilePreview from '@/components/SocialProfilePreview';
+import BentoCardComponent from '@/components/BentoCard';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
@@ -174,76 +175,8 @@ const CardItem = memo(function CardItem({ card, onEdit, onDelete, onSizeChange }
       )}
 
       {/* Card content */}
-      <div style={{ height: '100%', width: '100%', overflow: 'visible' }}>
-        <div className={`group relative overflow-hidden rounded-xl ${isBackgroundImage ? '' : 'bg-white dark:bg-gunmetal/50'} border border-dust-grey/20 dark:border-pale-sky/10 shadow-sm hover:shadow-md transition-all duration-200 ease-out hover:scale-[1.02] hover:border-cool-sky/30 dark:hover:border-cool-sky/20 h-full w-full`}>
-          {/* Background image */}
-          {isBackgroundImage && card.image && (
-            <div className="absolute inset-0">
-              <img
-                src={card.image}
-                alt={card.title || ''}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-              <div className="relative h-full p-6 flex flex-col justify-end text-white">
-                {card.title && (
-                  <h3 className="text-xl font-semibold mb-2 drop-shadow-lg">{card.title}</h3>
-                )}
-                {card.description && (
-                  <p className="text-sm text-white/90 drop-shadow-md leading-relaxed">{card.description}</p>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Normal content */}
-          {!isBackgroundImage && (
-            <div className="h-full p-6 flex flex-col">
-              {card.image && (
-                <div className="relative w-full h-32 mb-4 rounded-lg overflow-hidden bg-dust-grey/20 dark:bg-pale-sky/10">
-                  <img
-                    src={card.image}
-                    alt={card.title || ''}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-              )}
-
-              {card.socialPlatform && !card.image && (
-                <div className={`${card.size === 'small' ? 'flex-row items-center gap-3' : 'flex-col items-center justify-center'} flex mb-4 flex-grow`}>
-                  {card.socialUsername ? (
-                    <SocialProfilePreview
-                      platform={card.socialPlatform}
-                      username={card.socialUsername}
-                      url={card.url}
-                      cardSize={card.size}
-                    />
-                  ) : (
-                    <div className={`${card.size === 'small' ? 'flex-row items-center gap-2' : 'flex-col items-center justify-center'} flex`}>
-                      <div className={`${card.size === 'small' ? 'w-8 h-8' : 'w-24 h-24'} rounded-full bg-gradient-to-br from-cool-sky/20 to-cool-sky/40 dark:from-cool-sky/30 dark:to-cool-sky/50 ${card.size === 'small' ? '' : 'mb-3'} flex items-center justify-center border-2 border-cool-sky/30`}>
-                        <SocialIcon platform={card.socialPlatform} size={card.size === 'small' ? 20 : 48} />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {card.icon && !card.image && !card.socialPlatform && (
-                <div className="mb-4 text-5xl flex items-center justify-center">{card.icon}</div>
-              )}
-
-              {card.title && (
-                <h3 className="text-lg font-semibold text-gunmetal dark:text-alice-blue mb-2">{card.title}</h3>
-              )}
-              {card.description && (
-                <p className="text-sm text-gunmetal/70 dark:text-pale-sky/80 mb-4 flex-grow leading-relaxed">{card.description}</p>
-              )}
-              {card.content && (
-                <div className="flex-grow">{card.content}</div>
-              )}
-            </div>
-          )}
-        </div>
+      <div className="pointer-events-none h-full w-full">
+        <BentoCardComponent card={card} />
       </div>
     </div>
   );
@@ -341,36 +274,41 @@ export default function CardManagerRGL() {
   }, []);
 
   const isDraggingRef = useRef(false);
+  // Track whether the user actually dragged (vs RGL internal recalculates)
+  const hasDraggedRef = useRef(false);
 
   // ── Sync local state without destroying RGL during active drags ──
   const handleLayoutChange = useCallback(
     (_currentLayout: Layout, allLayouts: ResponsiveLayouts) => {
-      // Prevents React from tearing dragging DOM frames
+      // Skip on initial mount or while dragging
       if (isInitialMount.current) return;
-      if (isDraggingRef.current) return; 
-
+      if (isDraggingRef.current) return;
+      // Only update local state but DON'T persist — persisting happens in onDragStop
       if (allLayouts && Object.keys(allLayouts).length > 0) {
         setLayouts(allLayouts);
-        
-        // Grab the authoritative LG layout from RGL memory to persist to database
-        const authLg = allLayouts.lg || [];
-        if (authLg.length > 0) {
-          persistLayout([...authLg] as LayoutItem[]);
-        }
       }
     },
-    [persistLayout]
+    []
   );
 
   const handleDragStart = useCallback(() => {
     isDraggingRef.current = true;
+    hasDraggedRef.current = false;
   }, []);
 
-  const handleDragStop = useCallback(() => {
+  const handleDragStop = useCallback((_layout: any, _oldItem: any, newItem: any) => {
     isDraggingRef.current = false;
-    // Note: RGL internally fires onLayoutChange IMMEDIATELY after onDragStop. 
-    // Since flag is now false, that cycle handles the sync. 
-  }, []);
+    hasDraggedRef.current = true;
+    // RGL fires onLayoutChange right after this with the final positions — 
+    // we need to persist THOSE positions, so we do it here with a short delay
+    // to let the layout state update first
+    setTimeout(() => {
+      const currentLg = lgLayoutRef.current;
+      if (currentLg.length > 0) {
+        persistLayout([...currentLg]);
+      }
+    }, 50);
+  }, [persistLayout]);
 
   // ── Track breakpoint changes ──
   const handleBreakpointChange = useCallback((newBreakpoint: string) => {
@@ -593,7 +531,7 @@ export default function CardManagerRGL() {
               // Intentionally blank
             },
             onDragStop: (layout: any, oldItem: any, newItem: any) => {
-               handleDragStop();
+               handleDragStop(layout, oldItem, newItem);
             },
             onLayoutChange: (currentLayout: LayoutItem[], allLayouts: ResponsiveLayouts) => {
                handleLayoutChange(currentLayout, allLayouts);

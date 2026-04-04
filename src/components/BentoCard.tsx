@@ -30,13 +30,89 @@ export default function BentoCard({ card }: BentoCardProps) {
 
   // ─── Editorial tonal styling (no borders, no heavy shadows) ───
   const baseClasses = `
-    group relative overflow-hidden rounded-card
+    group relative overflow-hidden rounded-[1.5rem]
     ${overrideColor ? '' : isBackgroundImage ? '' : 'bg-surface-container-high'}
     transition-colors duration-300
     ${overrideColor ? 'hover:brightness-110' : 'hover:bg-surface-container-highest'}
     h-full w-full
     min-h-[140px] flex flex-col
   `;
+
+  if (card.type === 'social' && card.socialPlatform) {
+    const brandColor = getSocialColor(card.socialPlatform);
+    const bgColor = card.color || undefined;
+
+    // Auto-generate URL from handle if no explicit URL is set
+    const getAutoUrl = (platform: string, username: string): string => {
+      const handle = username.replace('@', '');
+      switch (platform) {
+        case 'github':    return `https://github.com/${handle}`;
+        case 'linkedin':  return `https://linkedin.com/in/${handle}`;
+        case 'twitter':   return `https://twitter.com/${handle}`;
+        case 'instagram': return `https://instagram.com/${handle}`;
+        case 'tiktok':    return `https://tiktok.com/@${handle}`;
+        case 'youtube':   return `https://youtube.com/@${handle}`;
+        default:          return '';
+      }
+    };
+
+    const resolvedUrl = card.url || (card.socialUsername ? getAutoUrl(card.socialPlatform, card.socialUsername) : '');
+
+    if (card.size === 'small') {
+      const inner = (
+        <div className="flex flex-col h-full w-full justify-center items-center text-center">
+          <div 
+             className="w-10 h-10 rounded-[10px] flex items-center justify-center text-white mb-3 shadow-sm ring-1 ring-white/10 shrink-0 group-hover:scale-110 transition-transform"
+             style={{ backgroundColor: brandColor }}
+           >
+             <SocialIcon platform={card.socialPlatform} size={22} />
+           </div>
+           <span className="font-label text-[0.6rem] tracking-widest text-on-surface-variant uppercase mb-0.5">
+             {card.socialPlatform}
+           </span>
+           <span className="font-body font-bold text-[13px] text-on-surface max-w-full truncate px-2">
+             {card.title || `@${(card.socialUsername || '').replace('@','')}`}
+           </span>
+        </div>
+      );
+      const baseClassesSmall = `group relative h-full w-full p-4 overflow-hidden rounded-[1.5rem] transition-colors duration-300 ring-1 ring-on-surface-muted/10 flex flex-col justify-center items-center ${bgColor ? 'hover:brightness-95' : 'bg-surface-container-high hover:bg-surface-container-highest'}`;
+      if (resolvedUrl) {
+        return <Link href={resolvedUrl} target="_blank" rel="noopener noreferrer" className={baseClassesSmall} style={bgColor ? { backgroundColor: bgColor } : {}}>{inner}</Link>;
+      }
+      return <div className={baseClassesSmall} style={bgColor ? { backgroundColor: bgColor } : {}}>{inner}</div>;
+    }
+
+    // Medium / Large / Wide / Tall — horizontal layout: logo left, text right
+    const inner = (
+      <div className="flex flex-col h-full">
+        {/* Top row: logo + text */}
+        <div className="flex items-start gap-3 md:gap-4">
+          <div 
+            className="w-11 h-11 md:w-12 md:h-12 rounded-[14px] flex items-center justify-center text-white shadow-sm ring-1 ring-white/10 shrink-0"
+            style={{ backgroundColor: brandColor }}
+          >
+            <SocialIcon platform={card.socialPlatform} size={26} />
+          </div>
+          <div className="flex flex-col min-w-0 flex-1 pt-0.5">
+            <h3 className="text-[15px] md:text-[16px] font-bold text-on-surface leading-tight tracking-tight truncate">
+              {card.title || card.socialUsername?.replace('@', '') || card.socialPlatform}
+            </h3>
+            {(card.description || card.socialUsername) && (
+              <p className="text-[12px] md:text-[13px] text-on-surface-variant mt-0.5 font-medium truncate">
+                {card.description || `@${(card.socialUsername || '').replace('@', '')}`}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+
+    const baseClassesSocial = `group relative h-full w-full p-4 md:p-5 overflow-hidden rounded-[1.5rem] transition-colors duration-300 ring-1 ring-on-surface-muted/10 flex flex-col ${bgColor ? 'hover:brightness-95' : 'bg-surface-container-high hover:bg-surface-container-highest'}`;
+    if (resolvedUrl) {
+      return <Link href={resolvedUrl} target="_blank" rel="noopener noreferrer" className={baseClassesSocial} style={bgColor ? { backgroundColor: bgColor } : {}}>{inner}</Link>;
+    }
+    return <div className={baseClassesSocial} style={bgColor ? { backgroundColor: bgColor } : {}}>{inner}</div>;
+  }
 
   const renderSocialContent = () => {
     if (!card.socialPlatform) return null;
@@ -89,7 +165,7 @@ export default function BentoCard({ card }: BentoCardProps) {
 
       {/* Regular Image (Top) */}
       {card.image && !isBackgroundImage && (
-        <div className="relative w-full h-32 mb-0 overflow-hidden bg-surface-container flex-shrink-0 rounded-t-card">
+        <div className="relative w-full h-32 mb-0 overflow-hidden bg-surface-container flex-shrink-0 rounded-t-[1.5rem]">
           <Image
             src={card.image}
             alt={card.title || ''}

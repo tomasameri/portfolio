@@ -206,39 +206,60 @@ export default function CardEditor({ card, isOpen, onClose, onSave }: CardEditor
               />
             </div>
 
-            {/* URL */}
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="flex items-center gap-2 text-sm font-semibold text-gunmetal dark:text-pale-sky">
-                  <LinkIcon className="w-4 h-4" />
-                  URL
-                </label>
-                <input
-                  type="url"
-                  value={formData.url}
-                  onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-                  className="w-full px-4 py-3 rounded-2xl border border-dust-grey/30 dark:border-pale-sky/20 bg-white dark:bg-gunmetal/50 text-gunmetal dark:text-pale-sky placeholder:text-gunmetal/40 dark:placeholder:text-pale-sky/40 focus:outline-none focus:ring-2 focus:ring-cool-sky/50 focus:border-cool-sky/50 transition-all duration-200"
-                  placeholder="https://ejemplo.com"
-                />
-              </div>
+            {/* URL — only shown for non-social cards */}
+            {formData.type !== 'social' && (
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gunmetal dark:text-pale-sky">
+                    <LinkIcon className="w-4 h-4" />
+                    URL
+                  </label>
+                  <input
+                    type="url"
+                    value={formData.url}
+                    onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                    className="w-full px-4 py-3 rounded-2xl border border-dust-grey/30 dark:border-pale-sky/20 bg-white dark:bg-gunmetal/50 text-gunmetal dark:text-pale-sky placeholder:text-gunmetal/40 dark:placeholder:text-pale-sky/40 focus:outline-none focus:ring-2 focus:ring-cool-sky/50 focus:border-cool-sky/50 transition-all duration-200"
+                    placeholder="https://ejemplo.com"
+                  />
+                </div>
 
-              {/* Custom Color */}
+                {/* Custom Color */}
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gunmetal dark:text-pale-sky">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>
+                    Color Fondo (Opcional)
+                  </label>
+                  <div className="flex gap-3 items-center">
+                     <input
+                       type="color"
+                       value={formData.color || '#ffffff'}
+                       onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                       className="w-12 h-12 p-1 rounded-xl bg-white dark:bg-gunmetal cursor-pointer border border-dust-grey/30 dark:border-pale-sky/20"
+                     />
+                     <button type="button" onClick={() => setFormData({ ...formData, color: undefined })} className="text-xs opacity-50 hover:opacity-100 flex-shrink-0">Borrar Color</button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Color solo — para social cards */}
+            {formData.type === 'social' && (
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-semibold text-gunmetal dark:text-pale-sky">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>
                   Color Fondo (Opcional)
                 </label>
                 <div className="flex gap-3 items-center">
-                   <input
-                     type="color"
-                     value={formData.color || '#ffffff'}
-                     onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                     className="w-12 h-12 p-1 rounded-xl bg-white dark:bg-gunmetal cursor-pointer border border-dust-grey/30 dark:border-pale-sky/20"
-                   />
-                   <button type="button" onClick={() => setFormData({ ...formData, color: undefined })} className="text-xs opacity-50 hover:opacity-100 flex-shrink-0">Borrar Color</button>
+                  <input
+                    type="color"
+                    value={formData.color || '#ffffff'}
+                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                    className="w-12 h-12 p-1 rounded-xl bg-white dark:bg-gunmetal cursor-pointer border border-dust-grey/30 dark:border-pale-sky/20"
+                  />
+                  <button type="button" onClick={() => setFormData({ ...formData, color: undefined })} className="text-xs opacity-50 hover:opacity-100 flex-shrink-0">Borrar Color</button>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Plataforma Social (solo si tipo es social) */}
             {formData.type === 'social' && (

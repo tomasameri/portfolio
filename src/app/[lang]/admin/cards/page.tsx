@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import DndKitCardManager from '@/components/admin/DndKitCardManager';
+import CardManagerRGL from '@/components/admin/CardManagerRGL';
 
 export default function AdminCardsPage() {
   const router = useRouter();
@@ -18,7 +18,7 @@ export default function AdminCardsPage() {
             ← Volver al Dashboard
           </Link>
         </div>
-        <DndKitCardManager />
+        <CardManagerRGL />
       </div>
     </div>
   );

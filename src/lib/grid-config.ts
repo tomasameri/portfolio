@@ -5,12 +5,12 @@
  */
 
 export const GRID_CONFIG = {
-  cols: { lg: 3, md: 2, sm: 1, xs: 1, xxs: 1 } as const,
+  cols: { lg: 6, md: 4, sm: 2, xs: 1, xxs: 1 } as const,
   breakpoints: { lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 } as const,
   rowHeight: 180,
-  margin: [16, 16] as [number, number],
+  margin: [22, 22] as [number, number],
   containerPadding: [0, 0] as [number, number],
-  compactType: 'vertical' as const,
+  compactType: null as any, // Null permite desplazamiento libre tipo whiteboard
 } as const;
 
 /**
@@ -22,8 +22,8 @@ export const GRID_CONFIG = {
  */
 export const SIZE_TO_GRID: Record<string, { w: number; h: number }> = {
   small:  { w: 1, h: 1 },
-  medium: { w: 1, h: 1 },
-  large:  { w: 2, h: 2 },
+  medium: { w: 2, h: 2 },
+  large:  { w: 3, h: 2 },
   wide:   { w: 2, h: 1 },
   tall:   { w: 1, h: 2 },
 };
