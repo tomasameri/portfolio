@@ -65,7 +65,7 @@ export default function BentoCard({ card }: BentoCardProps) {
              className="w-10 h-10 rounded-[10px] flex items-center justify-center text-white mb-3 shadow-sm ring-1 ring-white/10 shrink-0 group-hover:scale-110 transition-transform"
              style={{ backgroundColor: brandColor }}
            >
-             <SocialIcon platform={card.socialPlatform} size={22} />
+             <SocialIcon platform={card.socialPlatform} size={22} color="#ffffff" />
            </div>
            <span className="font-label text-[0.6rem] tracking-widest text-on-surface-variant uppercase mb-0.5">
              {card.socialPlatform}
@@ -91,7 +91,7 @@ export default function BentoCard({ card }: BentoCardProps) {
             className="w-11 h-11 md:w-12 md:h-12 rounded-[14px] flex items-center justify-center text-white shadow-sm ring-1 ring-white/10 shrink-0"
             style={{ backgroundColor: brandColor }}
           >
-            <SocialIcon platform={card.socialPlatform} size={26} />
+            <SocialIcon platform={card.socialPlatform} size={26} color="#ffffff" />
           </div>
           <div className="flex flex-col min-w-0 flex-1 pt-0.5">
             <h3 className="text-[15px] md:text-[16px] font-bold text-on-surface leading-tight tracking-tight truncate">
@@ -121,7 +121,7 @@ export default function BentoCard({ card }: BentoCardProps) {
       return (
         <div className="absolute top-4 right-4 z-10">
           <div className="w-10 h-10 rounded-full bg-white/15 backdrop-blur-[20px] flex items-center justify-center text-white border border-white/10">
-            <SocialIcon platform={card.socialPlatform} size={20} />
+            <SocialIcon platform={card.socialPlatform} size={20} color="#ffffff" />
           </div>
         </div>
       );

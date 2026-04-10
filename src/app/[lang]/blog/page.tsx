@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getPublishedPosts } from '@/lib/services/blogService';
 import type { BlogPost } from '@/lib/services/blogService';
+import NewsletterToast from '@/components/NewsletterToast';
 
 export default function BlogPage() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -120,6 +121,7 @@ export default function BlogPage() {
           </div>
         )}
       </div>
+      <NewsletterToast />
     </div>
   );
 }

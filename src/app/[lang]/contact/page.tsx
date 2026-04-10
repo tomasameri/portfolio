@@ -75,6 +75,20 @@ export default function ContactPage() {
     }
   };
 
+  const renderHeader = (isMobile = false) => (
+    <>
+      <EditorialTitle level={isMobile ? "headline-md" : "display-md"} as="h1" className="mb-6 leading-tight">
+        {t.heroTitleStart} <br />
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-on-surface to-accent">
+          {t.heroTitleHighlight}
+        </span>
+      </EditorialTitle>
+      <p className="text-lg font-body text-on-surface-variant max-w-md leading-relaxed">
+        {t.heroSubtitle}
+      </p>
+    </>
+  );
+
   return (
     <div className="min-h-screen w-full relative overflow-hidden flex items-center justify-center p-6 py-24">
       {/* Background Decorative Elements */}
@@ -84,72 +98,59 @@ export default function ContactPage() {
       </div>
 
       <div className="container mx-auto relative z-10 max-w-6xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+
+        {/* Mobile Header */}
+        <motion.div
+           initial={{ opacity: 0, y: 20 }}
+           animate={{ opacity: 1, y: 0 }}
+           transition={{ duration: 0.6 }}
+           className="lg:hidden mb-8"
+        >
+          {renderHeader(true)}
+        </motion.div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 lg:items-center">
 
           {/* Left Column: Info & Text */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
-            className="flex flex-col space-y-10"
+            className="flex flex-col space-y-10 order-2 lg:order-1"
           >
-            <div>
-              <motion.span
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="inline-block px-4 py-1.5 mb-6 text-sm font-label tracking-widest uppercase text-accent bg-accent-container rounded-full"
-              >
-                {t.badge}
-              </motion.span>
-              <EditorialTitle level="display-md" as="h1" className="mb-6 leading-tight">
-                {t.heroTitleStart} <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-on-surface to-accent">
-                  {t.heroTitleHighlight}
-                </span>
-              </EditorialTitle>
-              <p className="text-lg font-body text-on-surface-variant max-w-md leading-relaxed">
-                {t.heroSubtitle}
-              </p>
+            {/* Desktop Header */}
+            <div className="hidden lg:block">
+              {renderHeader(false)}
             </div>
 
-            <div className="space-y-6">
-              <div className="flex items-center space-x-5 group cursor-pointer">
-                <div className="p-4 bg-surface-container-high rounded-2xl ring-1 ring-on-surface-muted/10 group-hover:bg-surface-container-highest transition-colors">
-                  <FaEnvelope className="text-2xl text-accent" />
+            <div className="bg-surface-container-high/50 rounded-3xl ring-1 ring-on-surface-muted/10 overflow-hidden flex flex-col">
+              <a href="mailto:tomasameridev@gmail.com" className="flex items-center space-x-5 p-6 hover:bg-surface-container-highest transition-colors group">
+                <div className="p-4 bg-surface-container rounded-2xl ring-1 ring-on-surface-muted/10 text-accent group-hover:scale-110 transition-transform">
+                  <FaEnvelope className="text-2xl" />
                 </div>
                 <div>
                   <h3 className="text-sm font-label text-on-surface-muted uppercase tracking-wide">{t.emailLabel}</h3>
-                  <a href="mailto:tomasameridev@gmail.com" className="text-xl font-body font-medium text-on-surface group-hover:text-accent transition-colors">
+                  <span className="text-lg font-body font-medium text-on-surface group-hover:text-accent transition-colors">
                     tomasameridev@gmail.com
-                  </a>
+                  </span>
                 </div>
-              </div>
+              </a>
 
-              <div className="flex items-center space-x-5 group cursor-pointer">
-                <div className="p-4 bg-surface-container-high rounded-2xl ring-1 ring-on-surface-muted/10 group-hover:bg-surface-container-highest transition-colors">
-                  <FaMapMarkerAlt className="text-2xl text-accent" />
+              <div className="w-full h-px bg-on-surface-muted/10" />
+
+              <div className="flex items-center space-x-5 p-6 group">
+                <div className="p-4 bg-surface-container rounded-2xl ring-1 ring-on-surface-muted/10 text-accent group-hover:scale-110 transition-transform">
+                  <FaMapMarkerAlt className="text-2xl" />
                 </div>
                 <div>
                   <h3 className="text-sm font-label text-on-surface-muted uppercase tracking-wide">{t.locationLabel}</h3>
-                  <p className="text-xl font-body font-medium text-on-surface">
+                  <p className="text-lg font-body font-medium text-on-surface">
                     {t.locationValue}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="pt-8">
-              <h3 className="text-sm font-label text-on-surface-muted uppercase tracking-wide mb-5">{t.followMe}</h3>
-              <div className="flex space-x-4">
-                <a href="https://github.com/tomasameri" target="_blank" rel="noopener noreferrer" className="p-3 bg-surface-container rounded-full hover:bg-surface-container-highest transition-colors text-on-surface">
-                  <SocialIcon platform="github" size={24} />
-                </a>
-                <a href="https://www.linkedin.com/in/tomasameri/" target="_blank" rel="noopener noreferrer" className="p-3 bg-surface-container rounded-full hover:bg-surface-container-highest transition-colors text-on-surface">
-                  <SocialIcon platform="linkedin" size={24} />
-                </a>
-              </div>
-            </div>
           </motion.div>
 
           {/* Right Column: Form */}
@@ -157,7 +158,7 @@ export default function ContactPage() {
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="w-full"
+            className="w-full order-1 lg:order-2"
           >
             <Card className="rounded-[2rem] p-8 md:p-12 relative overflow-hidden ring-1 ring-on-surface-muted/10">
               {/* Highlight gradient effect on form */}

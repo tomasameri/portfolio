@@ -16,7 +16,7 @@ export default function ProjectModal({ project, isOpen, onClose }: ProjectModalP
 
   return (
     <div
-      className="fixed inset-0 bg-gunmetal/90 dark:bg-gunmetal/95 flex items-center justify-center z-50 p-4 overflow-y-auto"
+      className="fixed inset-0 bg-gunmetal/60 dark:bg-gunmetal/70 backdrop-blur-md flex items-center justify-center z-[200] p-4 overflow-y-auto"
       onClick={onClose}
     >
       <div
@@ -37,7 +37,13 @@ export default function ProjectModal({ project, isOpen, onClose }: ProjectModalP
           </div>
         </div>
 
-        <div className="p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+        <div
+          className="p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-120px)]"
+          style={{
+            scrollbarWidth: 'thin',
+            scrollbarColor: 'rgba(100,180,255,0.35) transparent',
+          }}
+        >
           {project.image && (
             <div className="relative w-full h-64 rounded-lg overflow-hidden bg-dust-grey/20 dark:bg-pale-sky/10">
               <Image
@@ -86,13 +92,13 @@ export default function ProjectModal({ project, isOpen, onClose }: ProjectModalP
             </div>
           )}
 
-          <div className="flex gap-4 pt-4 border-t border-dust-grey/30 dark:border-pale-sky/20">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-dust-grey/30 dark:border-pale-sky/20">
             {project.url && (
               <a
                 href={project.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-6 py-2 bg-cool-sky text-gunmetal rounded-lg hover:bg-cool-sky/90 transition-colors font-medium"
+                className="w-full sm:w-auto text-center px-6 py-3 sm:py-2 bg-cool-sky text-gunmetal rounded-lg hover:bg-cool-sky/90 transition-colors font-medium"
               >
                 {messages.projects.viewProject}
               </a>
@@ -102,7 +108,7 @@ export default function ProjectModal({ project, isOpen, onClose }: ProjectModalP
                 href={project.githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-6 py-2 border border-dust-grey/30 dark:border-pale-sky/20 text-gunmetal dark:text-pale-sky rounded-lg hover:bg-dust-grey/10 dark:hover:bg-pale-sky/10 transition-colors font-medium"
+                className="w-full sm:w-auto text-center px-6 py-3 sm:py-2 border border-dust-grey/30 dark:border-pale-sky/20 text-gunmetal dark:text-pale-sky rounded-lg hover:bg-dust-grey/10 dark:hover:bg-pale-sky/10 transition-colors font-medium"
               >
                 {messages.projects.viewGithub}
               </a>

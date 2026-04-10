@@ -18,6 +18,7 @@ export interface BlogPost {
   seoTitle?: string;
   seoDescription?: string;
   readingTime?: number;
+  newsletter?: boolean;
 }
 
 export interface BlogPostDocument {
@@ -38,6 +39,7 @@ export interface BlogPostDocument {
   seoTitle?: string;
   seoDescription?: string;
   readingTime?: number;
+  newsletter?: boolean;
 }
 
 // Convertir documento de Appwrite a BlogPost
@@ -59,6 +61,7 @@ function documentToPost(doc: BlogPostDocument): BlogPost {
     seoTitle: doc.seoTitle,
     seoDescription: doc.seoDescription,
     readingTime: doc.readingTime,
+    newsletter: doc.newsletter || false,
   };
 }
 

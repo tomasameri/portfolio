@@ -84,18 +84,16 @@ export default function ProjectsPage() {
                     {project.description}
                   </p>
                   
-                  <div className="mt-auto">
-                    {project.technologies && project.technologies.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mb-6">
-                        {project.technologies.slice(0, 3).map((tech, idx) => (
-                          <Tag key={idx} variant="accent">{tech}</Tag>
-                        ))}
-                        {project.technologies.length > 3 && (
-                          <Tag>+{project.technologies.length - 3}</Tag>
-                        )}
-                      </div>
-                    )}
-                    <div className="text-sm font-label text-accent font-medium uppercase tracking-wide group-hover:translate-x-1 transition-transform inline-block">
+                  <div className="mt-auto flex items-center justify-between gap-4">
+                    <div className="flex flex-wrap gap-2">
+                      {project.technologies?.slice(0, 3).map((tech, idx) => (
+                        <Tag key={idx} variant="accent">{tech}</Tag>
+                      ))}
+                      {(project.technologies?.length ?? 0) > 3 && (
+                        <Tag>+{(project.technologies?.length ?? 0) - 3}</Tag>
+                      )}
+                    </div>
+                    <div className="flex-shrink-0 text-sm font-label text-accent font-medium uppercase tracking-wide group-hover:translate-x-1 transition-transform">
                       {messages.projects.viewMore} →
                     </div>
                   </div>

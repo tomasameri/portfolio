@@ -14,7 +14,8 @@ import {
   GlobeAltIcon, 
   RocketLaunchIcon,
   ClockIcon,
-  DocumentTextIcon
+  DocumentTextIcon,
+  EnvelopeIcon
 } from '@heroicons/react/24/outline';
 import MarkdownPreview from './MarkdownPreview';
 
@@ -41,6 +42,7 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
   // Metadata & Editorial fields
   const [published, setPublished] = useState(false);
   const [featured, setFeatured] = useState(false);
+  const [newsletter, setNewsletter] = useState(false);
   const [coverImage, setCoverImage] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
@@ -61,6 +63,7 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
       setContent(post.content || '');
       setPublished(post.published || false);
       setFeatured(post.featured || false);
+      setNewsletter(post.newsletter || false);
       setCoverImage(post.coverImage || '');
       setTags(post.tags || []);
       setSeoTitle(post.seoTitle || '');
@@ -85,6 +88,7 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
     setContent('');
     setPublished(false);
     setFeatured(false);
+    setNewsletter(false);
     setCoverImage('');
     setTags([]);
     setSeoTitle('');
@@ -137,6 +141,7 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
         content, 
         published,
         featured,
+        newsletter,
         coverImage,
         tags,
         seoTitle,
@@ -284,6 +289,19 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
                     type="checkbox"
                     checked={featured}
                     onChange={(e) => setFeatured(e.target.checked)}
+                    className="w-5 h-5 accent-cool-sky rounded-lg cursor-pointer"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <label htmlFor="newsletter-toggle" className="flex items-center gap-1.5 text-sm font-semibold text-gunmetal/80 dark:text-pale-sky/80 cursor-pointer">
+                    <EnvelopeIcon className="w-4 h-4 text-cool-sky/70" />
+                    Newsletter
+                  </label>
+                  <input
+                    id="newsletter-toggle"
+                    type="checkbox"
+                    checked={newsletter}
+                    onChange={(e) => setNewsletter(e.target.checked)}
                     className="w-5 h-5 accent-cool-sky rounded-lg cursor-pointer"
                   />
                 </div>

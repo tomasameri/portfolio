@@ -82,6 +82,10 @@ export function getProjectsCollectionId(): string {
   return process.env.NEXT_PUBLIC_APPWRITE_PROJECTS_COLLECTION_ID || '';
 }
 
+export function getNewsletterCollectionId(): string {
+  return process.env.NEXT_PUBLIC_APPWRITE_NEWSLETTER_COLLECTION_ID || '';
+}
+
 export function getStorageBucketId(): string {
   return process.env.NEXT_PUBLIC_APPWRITE_STORAGE_BUCKET_ID || '';
 }
