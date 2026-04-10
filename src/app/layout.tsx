@@ -1,5 +1,6 @@
 // src/app/layout.tsx
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import { Plus_Jakarta_Sans, Manrope, Space_Grotesk, Anonymous_Pro } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
@@ -68,6 +69,13 @@ export default function RootLayout({
         <Providers>
           {children}
         </Providers>
+
+        {/* ─── Umami Analytics ──────────────────────────────────────────── */}
+        <Script
+          src="https://cloud.umami.is/script.js"
+          data-website-id="f5147b91-1b48-41f4-a71b-862adb0be804"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
