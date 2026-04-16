@@ -66,10 +66,12 @@ export default function NewsletterToast() {
       } else {
         setState('error');
         setMessage(data.error || 'Algo salió mal. Intentá de nuevo.');
+        console.error('Error suscribiendo:', data.details || data);
       }
-    } catch {
+    } catch (err) {
       setState('error');
       setMessage('No se pudo conectar. Intentá de nuevo.');
+      console.error('Network/Client error:', err);
     }
   };
 

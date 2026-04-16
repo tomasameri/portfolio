@@ -34,8 +34,13 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // DEBUGGING ONLY: Pasamos el mensaje de error para entender por qué falla en producción
     return NextResponse.json(
-      { success: false, error: 'No se pudo completar la suscripción. Intentá de nuevo.' },
+      { 
+        success: false, 
+        error: 'No se pudo completar la suscripción. Intentá de nuevo.',
+        details: error?.message || 'Error desconocido'
+      },
       { status: 500 }
     );
   }
