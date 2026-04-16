@@ -12,6 +12,8 @@ export default function BlogPostList() {
   const [editingPost, setEditingPost] = useState<BlogPost | undefined>();
   const [isFormOpen, setIsFormOpen] = useState(false);
 
+  const [sendingId, setSendingId] = useState<string | null>(null);
+
   useEffect(() => {
     loadPosts();
   }, []);
@@ -90,6 +92,43 @@ export default function BlogPostList() {
     }
   };
 
+  const handleSendNewsletter = async (post: BlogPost) => {
+    if (!post.published) {
+      alert('El post debe estar publicado antes de enviarlo a tus suscriptores.');
+      return;
+    }
+
+    if (!confirm(`¿Estás seguro de enviar un correo a TODOS tus suscriptores con el artículo "${post.title}"?`)) {
+      return;
+    }
+
+    try {
+      setSendingId(post.id);
+      const res = await fetch('/api/newsletter/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: post.title,
+          excerpt: post.excerpt,
+          slug: post.slug,
+        })
+      });
+
+      const data = await res.json();
+      
+      if (data.success) {
+        alert(`¡Éxito! Se envió el correo a ${data.count} suscriptores.`);
+      } else {
+        alert(`Error al enviar: ${data.error} \n\n${data.details || ''}`);
+      }
+    } catch (error) {
+      console.error('Error sending newsletter:', error);
+      alert('Error de conexión al intentar enviar el newsletter.');
+    } finally {
+      setSendingId(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
@@ -145,6 +184,14 @@ export default function BlogPostList() {
                 </div>
               </div>
               <div className="flex gap-2 ml-4">
+                <button
+                  onClick={() => handleSendNewsletter(post)}
+                  disabled={sendingId === post.id}
+                  className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+                  title="Enviar Newsletter"
+                >
+                  {sendingId === post.id ? '⏳' : '📧'}
+                </button>
                 <button
                   onClick={() => handleEdit(post)}
                   className="p-2 bg-cool-sky text-gunmetal rounded hover:bg-cool-sky/90"
