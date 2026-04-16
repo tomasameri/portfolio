@@ -131,7 +131,7 @@ export default function NewsletterToast() {
                     onSubmit={handleSubmit}
                     className="space-y-2"
                   >
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2 w-full">
                       <input
                         id="newsletter-email-input"
                         type="email"
@@ -139,12 +139,12 @@ export default function NewsletterToast() {
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="tu@email.com"
                         required
-                        className="flex-1 min-w-0 px-4 py-2.5 text-sm rounded-xl bg-alice-blue/60 dark:bg-pale-sky/5 border border-dust-grey/30 dark:border-pale-sky/10 text-gunmetal dark:text-alice-blue placeholder:text-gunmetal/30 dark:placeholder:text-pale-sky/30 focus:outline-none focus:ring-2 focus:ring-cool-sky/30 transition-all"
+                        className="flex-1 w-full min-w-0 px-4 py-2.5 text-sm rounded-xl bg-alice-blue/60 dark:bg-pale-sky/5 border border-dust-grey/30 dark:border-pale-sky/10 text-gunmetal dark:text-alice-blue placeholder:text-gunmetal/30 dark:placeholder:text-pale-sky/30 focus:outline-none focus:ring-2 focus:ring-cool-sky/30 transition-all"
                         aria-label="Tu email"
                       />
                       <button
                         type="submit"
-                        className="px-4 py-2.5 rounded-xl bg-cool-sky text-gunmetal text-sm font-bold hover:bg-cool-sky/90 active:scale-95 transition-all shadow-sm shadow-cool-sky/20 disabled:opacity-50 whitespace-nowrap"
+                        className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-cool-sky text-gunmetal text-sm font-bold hover:bg-cool-sky/90 active:scale-95 transition-all shadow-sm shadow-cool-sky/20 disabled:opacity-50 whitespace-nowrap"
                       >
                         Suscribirme
                       </button>

@@ -4,8 +4,12 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import remarkWikiLink from 'remark-wiki-link';
 import { getPostBySlug } from '@/lib/services/blogService';
 import type { BlogPost } from '@/lib/services/blogService';
+import NewsletterToast from '@/components/NewsletterToast';
 
 export default function BlogPostPage() {
   const params = useParams();
@@ -40,7 +44,7 @@ export default function BlogPostPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 pt-20 pb-12 md:py-12">
         <div className="text-center py-12 text-gunmetal/70 dark:text-pale-sky/70">
           Cargando post...
         </div>
@@ -50,7 +54,7 @@ export default function BlogPostPage() {
 
   if (error || !post) {
     return (
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 pt-22 pb-12 md:py-12">
         <div className="text-center py-12">
           <h1 className="text-2xl font-bold mb-4 text-gunmetal dark:text-alice-blue">
             {error || 'Post no encontrado'}
@@ -67,7 +71,7 @@ export default function BlogPostPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-4xl animate-in fade-in duration-500">
+    <div className="container mx-auto px-4 pt-22 pb-12 md:py-12 max-w-4xl animate-in fade-in duration-500">
       <Link
         href="/blog"
         className="text-cool-sky hover:text-cool-sky/80 transition-all mb-8 inline-flex items-center gap-2 group"
@@ -78,9 +82,9 @@ export default function BlogPostPage() {
       <article>
         {post.coverImage && (
           <div className="mb-10 rounded-3xl overflow-hidden shadow-2xl shadow-cool-sky/10 border border-dust-grey/10 dark:border-pale-sky/10 ring-1 ring-black/5">
-            <img 
-              src={post.coverImage} 
-              alt={post.title} 
+            <img
+              src={post.coverImage}
+              alt={post.title}
               className="w-full aspect-video object-cover hover:scale-[1.02] transition-transform duration-700"
             />
           </div>
@@ -88,8 +92,8 @@ export default function BlogPostPage() {
 
         <div className="flex flex-wrap gap-2 mb-6">
           {post.tags?.map(tag => (
-            <span 
-              key={tag} 
+            <span
+              key={tag}
               className="px-3 py-1 bg-cool-sky/10 text-cool-sky text-[10px] font-bold uppercase tracking-wider rounded-lg border border-cool-sky/20"
             >
               {tag}
@@ -120,9 +124,22 @@ export default function BlogPostPage() {
         </div>
 
         <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-display prose-headings:tracking-tight prose-a:text-cool-sky prose-img:rounded-3xl prose-pre:bg-gunmetal prose-pre:rounded-2xl shadow-cool-sky/5">
-          <ReactMarkdown>{post.content}</ReactMarkdown>
+          <ReactMarkdown
+            remarkPlugins={[
+              remarkGfm,
+              [remarkWikiLink, {
+                aliasDivider: '|',
+                pageResolver: (name: string) => [name.trim()],
+                hrefTemplate: (permalink: string) => `/blog/${permalink.trim()}`
+              }]
+            ]}
+            rehypePlugins={[rehypeRaw]}
+          >
+            {post.content}
+          </ReactMarkdown>
         </div>
       </article>
+      <NewsletterToast />
     </div>
   );
 }

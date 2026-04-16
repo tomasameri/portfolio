@@ -17,6 +17,7 @@ import {
   DocumentTextIcon,
   EnvelopeIcon
 } from '@heroicons/react/24/outline';
+import rehypeRaw from 'rehype-raw';
 import MarkdownPreview from './MarkdownPreview';
 
 // Importar el editor markdown de forma dinámica
@@ -24,6 +25,8 @@ const MDEditor = dynamic(
   () => import('@uiw/react-md-editor').then((mod) => mod.default),
   { ssr: false }
 );
+
+import { commands } from '@uiw/react-md-editor';
 
 interface BlogPostFormProps {
   post?: BlogPost;
@@ -142,7 +145,7 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
         published,
         featured,
         newsletter,
-        coverImage,
+        coverImage: coverImage.trim() !== '' ? coverImage.trim() : null as any,
         tags,
         seoTitle,
         seoDescription,
@@ -238,8 +241,31 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
                     <MDEditor
                       value={content}
                       onChange={(value) => setContent(value || '')}
+                      commands={[
+                        ...commands.getCommands(),
+                        commands.divider,
+                        {
+                          name: 'insertObsidianLink',
+                          keyCommand: 'insertObsidianLink',
+                          buttonProps: { 'aria-label': 'Insert Obsidian Link', title: 'Insert Obsidian Link' },
+                          icon: (
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                              <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
+                            </svg>
+                          ),
+                          execute: (state, api) => {
+                            let modifyText = `[[${state.selectedText || 'slug-del-post'}]]`;
+                            api.replaceSelection(modifyText);
+                          },
+                        }
+                      ]}
                       preview="edit"
                       hideToolbar={false}
+                      previewOptions={{
+                        rehypePlugins: [[rehypeRaw as any, { passThrough: ['element'] }]]
+                      }}
                       visibleDragbar={false}
                       height="100%"
                       className="!border-none !bg-transparent !shadow-none"
