@@ -5,6 +5,8 @@ import { AuthProvider } from "@/context/AuthContext";
 import NavigationSidebar from "@/components/NavigationSidebar";
 import SettingsDock from "@/components/SettingsDock";
 import HtmlLang from "@/components/HtmlLang";
+import JsonLd from "@/components/JsonLd";
+import { personSchema, webSiteSchema } from "@/lib/schema";
 import { SITE_URL, LOCALES } from "@/lib/siteConfig";
 
 export async function generateStaticParams() {
@@ -47,6 +49,7 @@ export default async function LangLayout({
       <AuthProvider>
         <LocaleProvider lang={locale}>
           <HtmlLang lang={locale} />
+          <JsonLd data={[personSchema(), webSiteSchema()]} />
           {/* Replaced hardcoded pale-sky/gunmetal with tonal surface */}
           <div className="min-h-screen bg-surface transition-colors duration-200">
             <NavigationSidebar />

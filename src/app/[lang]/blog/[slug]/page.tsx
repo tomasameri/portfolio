@@ -7,6 +7,8 @@ import rehypeRaw from 'rehype-raw';
 import remarkWikiLink from 'remark-wiki-link';
 import { getPostBySlug } from '@/lib/services/blogService';
 import NewsletterToast from '@/components/NewsletterToast';
+import JsonLd from '@/components/JsonLd';
+import { blogPostingSchema, breadcrumbSchema } from '@/lib/schema';
 import { SITE_URL, SITE_NAME, LOCALES } from '@/lib/siteConfig';
 
 // Server-render en cada request para reflejar posts nuevos/editados y su metadata.
@@ -73,7 +75,7 @@ export default async function BlogPostPage({
 }: {
   params: Promise<Params>;
 }) {
-  const { slug } = await params;
+  const { lang, slug } = await params;
   const post = await loadPost(slug);
 
   if (!post) {
@@ -96,6 +98,16 @@ export default async function BlogPostPage({
 
   return (
     <div className="container mx-auto px-4 pt-22 pb-12 md:py-12 max-w-4xl animate-in fade-in duration-500">
+      <JsonLd
+        data={[
+          blogPostingSchema(post, lang),
+          breadcrumbSchema([
+            { name: 'Home', url: `${SITE_URL}/${lang}` },
+            { name: 'Blog', url: `${SITE_URL}/${lang}/blog` },
+            { name: post.title, url: `${SITE_URL}/${lang}/blog/${post.slug}` },
+          ]),
+        ]}
+      />
       <Link
         href="/blog"
         className="text-cool-sky hover:text-cool-sky/80 transition-all mb-8 inline-flex items-center gap-2 group"
