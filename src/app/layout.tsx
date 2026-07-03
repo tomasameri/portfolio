@@ -1,9 +1,9 @@
 // src/app/layout.tsx
 import type { Metadata } from 'next';
-import Script from 'next/script';
 import { Plus_Jakarta_Sans, Manrope, Space_Grotesk, Anonymous_Pro } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
+import { SITE_URL, SITE_NAME, SITE_TITLE, SITE_DESCRIPTION } from '@/lib/siteConfig';
 
 // ─── Editorial Design System Fonts ───────────────────────────────────────
 const plusJakarta = Plus_Jakarta_Sans({
@@ -36,9 +36,34 @@ const anonymousPro = Anonymous_Pro({
 });
 
 export const metadata: Metadata = {
-  title: 'Tomas Ameri | Portfolio & Blog',
-  description: 'Personal portfolio and blog of Tomas Ameri - Exploring AI, Tech & Design',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_TITLE,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
   keywords: ['portfolio', 'blog', 'web development', 'AI', 'tech', 'design'],
+  authors: [{ name: SITE_NAME, url: SITE_URL }],
+  creator: SITE_NAME,
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    type: 'website',
+    siteName: SITE_NAME,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
   icons: {
     icon: [
       { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
@@ -69,13 +94,6 @@ export default function RootLayout({
         <Providers>
           {children}
         </Providers>
-
-        {/* ─── Umami Analytics ──────────────────────────────────────────── */}
-        <Script
-          src="https://cloud.umami.is/script.js"
-          data-website-id="f5147b91-1b48-41f4-a71b-862adb0be804"
-          strategy="afterInteractive"
-        />
       </body>
     </html>
   );

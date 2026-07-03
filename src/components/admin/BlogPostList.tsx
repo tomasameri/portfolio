@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { BlogPost, getAllPosts, deletePost, updatePost, createPost } from '@/lib/services/blogService';
 import BlogPostForm from './BlogPostForm';
 import { useAuth } from '@/context/AuthContext';
+import { account } from '@/lib/appwrite';
 
 export default function BlogPostList() {
   const { user } = useAuth();
@@ -104,9 +105,14 @@ export default function BlogPostList() {
 
     try {
       setSendingId(post.id);
+      // Generamos un JWT de la sesión actual para autenticar la request en el server.
+      const { jwt } = await account.createJWT();
       const res = await fetch('/api/newsletter/send', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${jwt}`,
+        },
         body: JSON.stringify({
           title: post.title,
           excerpt: post.excerpt,

@@ -3,12 +3,13 @@
 import { useTheme } from '@/context/ThemeContext';
 import {
   SiGithub,
-  SiLinkedin,
   SiX,
   SiInstagram,
   SiTiktok,
   SiYoutube,
 } from 'react-icons/si';
+// LinkedIn fue removido del set Simple Icons en react-icons 5.6; usamos el de Font Awesome.
+import { FaLinkedin } from 'react-icons/fa';
 
 interface SocialIconProps {
   platform: 'github' | 'linkedin' | 'twitter' | 'instagram' | 'tiktok' | 'youtube';
@@ -49,7 +50,7 @@ export default function SocialIcon({ platform, size = 48, className = '', color 
     case 'github':
       return <SiGithub {...iconProps} />;
     case 'linkedin':
-      return <SiLinkedin {...iconProps} />;
+      return <FaLinkedin {...iconProps} />;
     case 'twitter':
       return <SiX {...iconProps} />;
     case 'instagram':

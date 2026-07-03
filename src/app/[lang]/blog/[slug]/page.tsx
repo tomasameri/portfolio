@@ -1,63 +1,87 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { cache } from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import remarkWikiLink from 'remark-wiki-link';
 import { getPostBySlug } from '@/lib/services/blogService';
-import type { BlogPost } from '@/lib/services/blogService';
 import NewsletterToast from '@/components/NewsletterToast';
+import { SITE_URL, SITE_NAME, LOCALES } from '@/lib/siteConfig';
 
-export default function BlogPostPage() {
-  const params = useParams();
-  const slug = params?.slug as string;
-  const [post, setPost] = useState<BlogPost | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+// Server-render en cada request para reflejar posts nuevos/editados y su metadata.
+export const dynamic = 'force-dynamic';
 
-  useEffect(() => {
-    if (slug) {
-      loadPost();
-    }
-  }, [slug]);
+// Cacheamos la lectura del post para no pegarle dos veces a Appwrite
+// (una en generateMetadata y otra en el componente) dentro del mismo request.
+const loadPost = cache((slug: string) => getPostBySlug(slug));
 
-  const loadPost = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const fetchedPost = await getPostBySlug(slug);
-      if (fetchedPost) {
-        setPost(fetchedPost);
-      } else {
-        setError('Post no encontrado');
-      }
-    } catch (err) {
-      console.error('Error loading post:', err);
-      setError('Error al cargar el post');
-    } finally {
-      setLoading(false);
-    }
-  };
+type Params = { lang: string; slug: string };
 
-  if (loading) {
-    return (
-      <div className="container mx-auto px-4 pt-20 pb-12 md:py-12">
-        <div className="text-center py-12 text-gunmetal/70 dark:text-pale-sky/70">
-          Cargando post...
-        </div>
-      </div>
-    );
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<Params>;
+}): Promise<Metadata> {
+  const { lang, slug } = await params;
+  const post = await loadPost(slug);
+
+  if (!post) {
+    return {
+      title: 'Post no encontrado',
+      robots: { index: false, follow: false },
+    };
   }
 
-  if (error || !post) {
+  const title = post.seoTitle || post.title;
+  const description =
+    post.seoDescription || post.excerpt || `${post.title} — ${SITE_NAME}`;
+  const canonical = `${SITE_URL}/${lang}/blog/${post.slug}`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical,
+      languages: Object.fromEntries(
+        LOCALES.map((l) => [l, `${SITE_URL}/${l}/blog/${post.slug}`])
+      ),
+    },
+    openGraph: {
+      type: 'article',
+      title,
+      description,
+      url: canonical,
+      siteName: SITE_NAME,
+      locale: lang === 'es' ? 'es_ES' : 'en_US',
+      publishedTime: post.publishedAt,
+      modifiedTime: post.updatedAt,
+      tags: post.tags,
+      images: post.coverImage ? [{ url: post.coverImage }] : undefined,
+    },
+    twitter: {
+      card: post.coverImage ? 'summary_large_image' : 'summary',
+      title,
+      description,
+      images: post.coverImage ? [post.coverImage] : undefined,
+    },
+  };
+}
+
+export default async function BlogPostPage({
+  params,
+}: {
+  params: Promise<Params>;
+}) {
+  const { slug } = await params;
+  const post = await loadPost(slug);
+
+  if (!post) {
     return (
       <div className="container mx-auto px-4 pt-22 pb-12 md:py-12">
         <div className="text-center py-12">
           <h1 className="text-2xl font-bold mb-4 text-gunmetal dark:text-alice-blue">
-            {error || 'Post no encontrado'}
+            Post no encontrado
           </h1>
           <Link
             href="/blog"
@@ -82,6 +106,7 @@ export default function BlogPostPage() {
       <article>
         {post.coverImage && (
           <div className="mb-10 rounded-3xl overflow-hidden shadow-2xl shadow-cool-sky/10 border border-dust-grey/10 dark:border-pale-sky/10 ring-1 ring-black/5">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={post.coverImage}
               alt={post.title}
@@ -107,7 +132,7 @@ export default function BlogPostPage() {
 
         <div className="flex items-center gap-4 text-sm text-gunmetal/40 dark:text-pale-sky/40 mb-12 pb-12 border-b border-dust-grey/10 dark:border-pale-sky/10">
           {post.publishedAt && (
-            <time>
+            <time dateTime={post.publishedAt}>
               {new Date(post.publishedAt).toLocaleDateString('es-ES', {
                 year: 'numeric',
                 month: 'long',
@@ -143,4 +168,3 @@ export default function BlogPostPage() {
     </div>
   );
 }
-
