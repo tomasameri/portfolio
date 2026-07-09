@@ -1,0 +1,27 @@
+# Tomas Ameri — Portfolio & Blog
+
+> Personal portfolio and blog of Tomas Ameri, a systems student and digital product builder exploring AI, technology, and design. The site is bilingual (English at `/en`, Spanish at `/es`).
+
+Tomas Ameri builds digital products with a focus on marketplaces, automation, and applied artificial intelligence. This site showcases his projects, writing, and ways to get in touch. Content is available in English and Spanish; replace the `/en` prefix with `/es` for the Spanish version of any page.
+
+## Main pages
+
+- [Home](https://www.tomasameri.com/en): Overview, featured work, and links.
+- [About](https://www.tomasameri.com/en/about): Background, skills, and interests.
+- [Projects](https://www.tomasameri.com/en/projects): Selected products and experiments.
+- [Blog](https://www.tomasameri.com/en/blog): Articles on AI, tech, and design.
+- [Contact](https://www.tomasameri.com/en/contact): How to reach Tomas.
+
+## Español
+
+- [Inicio](https://www.tomasameri.com/es): Resumen y enlaces principales.
+- [Sobre mí](https://www.tomasameri.com/es/about): Perfil, habilidades e intereses.
+- [Proyectos](https://www.tomasameri.com/es/projects): Productos y experimentos destacados.
+- [Blog](https://www.tomasameri.com/es/blog): Artículos sobre IA, tecnología y diseño.
+- [Contacto](https://www.tomasameri.com/es/contact): Cómo contactar a Tomas.
+
+## Optional
+
+- [Sitemap](https://www.tomasameri.com/sitemap.xml): Full list of URLs, including every blog post.
+- [GitHub](https://github.com/tomasameri): Open-source code and repositories.
+- [LinkedIn](https://linkedin.com/in/tomasameri): Professional profile.
