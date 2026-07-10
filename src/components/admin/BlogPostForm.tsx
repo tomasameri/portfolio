@@ -3,19 +3,20 @@
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { BlogPost } from '@/lib/services/blogService';
-import { 
-  XMarkIcon, 
-  ChevronLeftIcon, 
-  EyeIcon, 
-  PencilIcon, 
-  TagIcon, 
-  HashtagIcon, 
-  PhotoIcon, 
-  GlobeAltIcon, 
+import {
+  ChevronLeftIcon,
+  EyeIcon,
+  PencilIcon,
+  TagIcon,
+  HashtagIcon,
+  PhotoIcon,
+  GlobeAltIcon,
   RocketLaunchIcon,
   ClockIcon,
   DocumentTextIcon,
-  EnvelopeIcon
+  EnvelopeIcon,
+  Cog6ToothIcon,
+  CalendarDaysIcon,
 } from '@heroicons/react/24/outline';
 import rehypeRaw from 'rehype-raw';
 import MarkdownPreview from './MarkdownPreview';
@@ -28,11 +29,56 @@ const MDEditor = dynamic(
 
 import { commands } from '@uiw/react-md-editor';
 
+// Límites recomendados por Google para no truncar en resultados de búsqueda.
+const SEO_TITLE_MAX = 60;
+const SEO_DESC_MIN = 120;
+const SEO_DESC_MAX = 160;
+const EXCERPT_MAX = 300;
+
 interface BlogPostFormProps {
   post?: BlogPost;
   isOpen: boolean;
   onClose: () => void;
   onSave: (data: Partial<Omit<BlogPost, 'id' | 'createdAt' | 'updatedAt' | 'authorId'>>) => Promise<void>;
+}
+
+// Contador de caracteres con feedback de color según el rango ideal para SEO.
+function CharMeter({
+  value,
+  ideal,
+  max,
+  min,
+}: {
+  value: number;
+  ideal?: number;
+  max: number;
+  min?: number;
+}) {
+  let color = 'text-gunmetal/40 dark:text-pale-sky/40';
+  if (value > max) color = 'text-red-500';
+  else if (min !== undefined && value > 0 && value < min) color = 'text-amber-500';
+  else if (value > 0) color = 'text-green-500';
+  return (
+    <span className={`text-[9px] font-mono font-bold ${color}`}>
+      {value}
+      {ideal ? `/${ideal}` : ''}
+    </span>
+  );
+}
+
+// Conversión ISO <-> valor de <input type="datetime-local"> respetando la zona local.
+function toLocalInput(iso?: string): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0, 16);
+}
+
+function fromLocalInput(value: string): string {
+  if (!value) return '';
+  const d = new Date(value);
+  return isNaN(d.getTime()) ? '' : d.toISOString();
 }
 
 export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPostFormProps) {
@@ -41,12 +87,15 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
   const [slug, setSlug] = useState('');
   const [excerpt, setExcerpt] = useState('');
   const [content, setContent] = useState('');
-  
+
   // Metadata & Editorial fields
   const [published, setPublished] = useState(false);
   const [featured, setFeatured] = useState(false);
   const [newsletter, setNewsletter] = useState(false);
+  const [noindex, setNoindex] = useState(false);
   const [coverImage, setCoverImage] = useState('');
+  const [coverImageAlt, setCoverImageAlt] = useState('');
+  const [publishedAt, setPublishedAt] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [seoTitle, setSeoTitle] = useState('');
@@ -56,7 +105,7 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
   // UI State
   const [viewMode, setViewMode] = useState<'edit' | 'preview' | 'split'>('edit');
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<'content' | 'metadata' | 'seo'>('content');
+  const [activeTab, setActiveTab] = useState<'content' | 'settings'>('content');
 
   useEffect(() => {
     if (post) {
@@ -67,7 +116,10 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
       setPublished(post.published || false);
       setFeatured(post.featured || false);
       setNewsletter(post.newsletter || false);
+      setNoindex(post.noindex || false);
       setCoverImage(post.coverImage || '');
+      setCoverImageAlt(post.coverImageAlt || '');
+      setPublishedAt(post.publishedAt || '');
       setTags(post.tags || []);
       setSeoTitle(post.seoTitle || '');
       setSeoDescription(post.seoDescription || '');
@@ -79,7 +131,7 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
 
   // Calculate reading time
   useEffect(() => {
-    const words = content.trim().split(/\s+/).length;
+    const words = content.trim() ? content.trim().split(/\s+/).length : 0;
     const time = Math.ceil(words / 200); // ~200 words per minute
     setReadingTime(time);
   }, [content]);
@@ -92,7 +144,10 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
     setPublished(false);
     setFeatured(false);
     setNewsletter(false);
+    setNoindex(false);
     setCoverImage('');
+    setCoverImageAlt('');
+    setPublishedAt('');
     setTags([]);
     setSeoTitle('');
     setSeoDescription('');
@@ -129,23 +184,62 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
     setTags(tags.filter(t => t !== tagToRemove));
   };
 
+  // Valores efectivos que realmente se indexan (con sus fallbacks del render real).
+  const effectiveSeoTitle = seoTitle.trim() || title;
+  const effectiveSeoDesc = seoDescription.trim() || excerpt;
+
+  // Checklist de calidad SEO que se muestra al editor en tiempo real.
+  const seoChecks = [
+    { ok: title.trim().length > 0, label: 'Título' },
+    { ok: excerpt.trim().length >= 50, label: 'Resumen (≥50)' },
+    { ok: effectiveSeoTitle.length > 0 && effectiveSeoTitle.length <= SEO_TITLE_MAX, label: `SEO title ≤${SEO_TITLE_MAX}` },
+    { ok: effectiveSeoDesc.length >= SEO_DESC_MIN && effectiveSeoDesc.length <= SEO_DESC_MAX, label: `Meta desc. ${SEO_DESC_MIN}-${SEO_DESC_MAX}` },
+    { ok: coverImage.trim().length > 0, label: 'Imagen de portada' },
+    { ok: !coverImage.trim() || coverImageAlt.trim().length > 0, label: 'Alt de portada' },
+    { ok: tags.length > 0, label: 'Al menos 1 etiqueta' },
+  ];
+  const seoScore = seoChecks.filter(c => c.ok).length;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !slug.trim()) {
-      alert('El título y el slug son requeridos');
+      alert('El título y el slug son requeridos.');
+      setActiveTab('settings');
       return;
+    }
+    // El excerpt es obligatorio en la base de datos y es el fallback de la meta description.
+    if (!excerpt.trim()) {
+      alert('El resumen (excerpt) es obligatorio: se usa como meta description y en las tarjetas del blog.');
+      setActiveTab('settings');
+      return;
+    }
+    // Aviso no bloqueante si el SEO queda flojo, para no publicar a ciegas.
+    const weak = seoChecks.filter(c => !c.ok);
+    if (weak.length > 0) {
+      const proceed = confirm(
+        `El SEO tiene ${weak.length} punto(s) por mejorar:\n\n` +
+        weak.map(c => `• ${c.label}`).join('\n') +
+        `\n\n¿Guardar de todas formas?`
+      );
+      if (!proceed) {
+        setActiveTab('settings');
+        return;
+      }
     }
     setSaving(true);
     try {
-      await onSave({ 
-        title, 
-        slug, 
-        excerpt, 
-        content, 
+      await onSave({
+        title,
+        slug,
+        excerpt,
+        content,
         published,
         featured,
         newsletter,
+        noindex,
         coverImage: coverImage.trim() !== '' ? coverImage.trim() : null as any,
+        coverImageAlt: coverImageAlt.trim() !== '' ? coverImageAlt.trim() : null as any,
+        publishedAt: publishedAt || undefined,
         tags,
         seoTitle,
         seoDescription,
@@ -162,43 +256,46 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
 
   if (!isOpen) return null;
 
+  const inputClass =
+    'w-full px-4 py-2 text-xs rounded-xl border border-dust-grey/20 dark:border-pale-sky/10 bg-white/50 dark:bg-gunmetal/30 focus:ring-2 focus:ring-cool-sky/40 focus:border-cool-sky/40 outline-none transition';
+
   return (
     <div className="fixed inset-0 bg-white dark:bg-gunmetal z-[100] flex flex-col overflow-hidden animate-in fade-in duration-200">
       {/* Editorial Header bar */}
-      <header className="h-20 border-b border-dust-grey/20 dark:border-pale-sky/10 flex items-center justify-between px-8 shrink-0 bg-white/80 dark:bg-gunmetal/80 backdrop-blur-xl z-10">
-        <div className="flex items-center gap-4">
-          <button 
+      <header className="h-20 border-b border-dust-grey/20 dark:border-pale-sky/10 flex items-center justify-between px-4 md:px-8 shrink-0 bg-white/80 dark:bg-gunmetal/80 backdrop-blur-xl z-10">
+        <div className="flex items-center gap-2 md:gap-4 min-w-0">
+          <button
             onClick={onClose}
             className="p-2 -ml-2 rounded-full hover:bg-dust-grey/10 dark:hover:bg-pale-sky/10 transition-colors"
           >
             <ChevronLeftIcon className="w-6 h-6 text-gunmetal/60 dark:text-pale-sky/60" />
           </button>
-          <div className="h-6 w-[1px] bg-dust-grey/20 dark:border-pale-sky/10 mx-2" />
-          <h2 className="text-xl font-display font-semibold text-gunmetal dark:text-alice-blue truncate max-w-[300px]">
+          <div className="h-6 w-[1px] bg-dust-grey/20 dark:border-pale-sky/10 mx-1 md:mx-2 hidden sm:block" />
+          <h2 className="text-lg md:text-xl font-display font-semibold text-gunmetal dark:text-alice-blue truncate max-w-[140px] md:max-w-[300px]">
             {title || 'Nuevo Post'}
           </h2>
           {published && (
-            <span className="px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 text-[10px] font-bold uppercase tracking-wider border border-green-500/20">
+            <span className="px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 text-[10px] font-bold uppercase tracking-wider border border-green-500/20 hidden sm:inline">
               Publicado
             </span>
           )}
         </div>
 
         {/* View Switchers */}
-        <div className="flex items-center bg-dust-grey/10 dark:bg-pale-sky/5 p-1 rounded-2xl">
-          <button 
+        <div className="hidden sm:flex items-center bg-dust-grey/10 dark:bg-pale-sky/5 p-1 rounded-2xl">
+          <button
             onClick={() => setViewMode('edit')}
             className={`flex items-center gap-2 px-4 py-1.5 rounded-xl text-sm font-medium transition-all ${viewMode === 'edit' ? 'bg-white dark:bg-gunmetal shadow-sm text-cool-sky' : 'text-gunmetal/40 dark:text-pale-sky/40 hover:text-gunmetal'}`}
           >
             <PencilIcon className="w-4 h-4" /> Escribir
           </button>
-          <button 
+          <button
             onClick={() => setViewMode('split')}
             className={`hidden md:flex items-center gap-2 px-4 py-1.5 rounded-xl text-sm font-medium transition-all ${viewMode === 'split' ? 'bg-white dark:bg-gunmetal shadow-sm text-cool-sky' : 'text-gunmetal/40 dark:text-pale-sky/40 hover:text-gunmetal'}`}
           >
             <RocketLaunchIcon className="w-4 h-4" /> Dividir
           </button>
-          <button 
+          <button
             onClick={() => setViewMode('preview')}
             className={`flex items-center gap-2 px-4 py-1.5 rounded-xl text-sm font-medium transition-all ${viewMode === 'preview' ? 'bg-white dark:bg-gunmetal shadow-sm text-cool-sky' : 'text-gunmetal/40 dark:text-pale-sky/40 hover:text-gunmetal'}`}
           >
@@ -206,7 +303,7 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
           </button>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
           <div className="hidden lg:flex flex-col items-end mr-2">
              <span className="text-[10px] uppercase tracking-widest text-gunmetal/40 dark:text-pale-sky/40 font-bold">Tiempo lectura</span>
              <span className="text-xs font-semibold text-gunmetal/80 dark:text-pale-sky/80">{readingTime} min</span>
@@ -214,18 +311,18 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
           <button
             onClick={handleSubmit}
             disabled={saving}
-            className="bg-cool-sky hover:bg-cool-sky/90 text-gunmetal px-8 py-3 rounded-2xl font-bold shadow-lg shadow-cool-sky/20 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50"
+            className="bg-cool-sky hover:bg-cool-sky/90 text-gunmetal px-5 md:px-8 py-3 rounded-2xl font-bold shadow-lg shadow-cool-sky/20 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 text-sm md:text-base whitespace-nowrap"
           >
-            {saving ? 'Guardando...' : published ? 'Actualizar' : 'Guardar borrador'}
+            {saving ? 'Guardando...' : published ? 'Actualizar' : 'Guardar'}
           </button>
         </div>
       </header>
 
       <main className="flex-1 flex overflow-hidden">
         {/* Editor Main Area (Left/Center) */}
-        <div className={`flex-1 overflow-y-auto transition-all duration-300 ${activeTab !== 'content' ? 'hidden sm:block' : ''}`}>
-           <div className={`mx-auto max-w-6xl p-8 lg:p-12 transition-all h-full ${viewMode === 'split' ? 'grid grid-cols-2 gap-12' : ''}`}>
-              
+        <div className={`flex-1 overflow-y-auto transition-all duration-300 ${activeTab === 'content' ? 'block' : 'hidden'} xl:block`}>
+           <div className={`mx-auto max-w-6xl p-6 sm:p-8 lg:p-12 transition-all h-full ${viewMode === 'split' ? 'grid grid-cols-2 gap-12' : ''}`}>
+
               {/* Write Mode */}
               {(viewMode === 'edit' || viewMode === 'split') && (
                 <div className="flex flex-col h-full space-y-8 animate-in slide-in-from-left-4 fade-in">
@@ -234,9 +331,9 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
                     value={title}
                     onChange={(e) => handleTitleChange(e.target.value)}
                     placeholder="Título del post..."
-                    className="text-5xl font-display font-bold bg-transparent border-none outline-none text-gunmetal dark:text-alice-blue placeholder:text-gunmetal/10 dark:placeholder:text-pale-sky/10 p-0 focus:ring-0"
+                    className="text-3xl sm:text-5xl font-display font-bold bg-transparent border-none outline-none text-gunmetal dark:text-alice-blue placeholder:text-gunmetal/10 dark:placeholder:text-pale-sky/10 p-0 focus:ring-0"
                   />
-                  
+
                   <div className="flex-1 min-h-[500px]" data-color-mode={typeof window !== 'undefined' && document.documentElement.classList.contains('dark') ? 'dark' : 'light'}>
                     <MDEditor
                       value={content}
@@ -290,8 +387,32 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
            </div>
         </div>
 
-        {/* Sidebar (Right) */}
-        <aside className="w-80 border-l border-dust-grey/20 dark:border-pale-sky/10 bg-alice-blue/30 dark:bg-gunmetal/20 shrink-0 overflow-y-auto p-6 space-y-8 hidden xl:block">
+        {/* Sidebar (Right) — en xl siempre visible; en pantallas chicas se muestra con el tab "Ajustes". */}
+        <aside className={`${activeTab === 'settings' ? 'block' : 'hidden'} xl:block w-full xl:w-80 border-l border-dust-grey/20 dark:border-pale-sky/10 bg-alice-blue/30 dark:bg-gunmetal/20 shrink-0 overflow-y-auto p-6 space-y-8 pb-28 xl:pb-8`}>
+            {/* SEO Score */}
+            <section className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-gunmetal/40 dark:text-pale-sky/40">
+                  <DocumentTextIcon className="w-3 h-3" /> Calidad SEO
+                </h3>
+                <span className={`text-xs font-black ${seoScore === seoChecks.length ? 'text-green-500' : seoScore >= 4 ? 'text-amber-500' : 'text-red-500'}`}>
+                  {seoScore}/{seoChecks.length}
+                </span>
+              </div>
+              <div className="bg-white dark:bg-gunmetal/50 rounded-2xl p-4 border border-dust-grey/20 dark:border-pale-sky/10 space-y-2">
+                {seoChecks.map((c) => (
+                  <div key={c.label} className="flex items-center gap-2 text-[11px]">
+                    <span className={c.ok ? 'text-green-500' : 'text-gunmetal/30 dark:text-pale-sky/30'}>
+                      {c.ok ? '✓' : '○'}
+                    </span>
+                    <span className={c.ok ? 'text-gunmetal/70 dark:text-pale-sky/70' : 'text-gunmetal/40 dark:text-pale-sky/40'}>
+                      {c.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </section>
+
             {/* Status Section */}
             <section className="space-y-4">
               <h3 className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-gunmetal/40 dark:text-pale-sky/40">
@@ -331,7 +452,36 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
                     className="w-5 h-5 accent-cool-sky rounded-lg cursor-pointer"
                   />
                 </div>
+                <div className="flex items-center justify-between">
+                  <label htmlFor="noindex-toggle" className="flex flex-col text-sm font-semibold text-gunmetal/80 dark:text-pale-sky/80 cursor-pointer">
+                    No indexar
+                    <span className="text-[9px] font-normal text-gunmetal/40 dark:text-pale-sky/40">Oculto para Google (noindex)</span>
+                  </label>
+                  <input
+                    id="noindex-toggle"
+                    type="checkbox"
+                    checked={noindex}
+                    onChange={(e) => setNoindex(e.target.checked)}
+                    className="w-5 h-5 accent-cool-sky rounded-lg cursor-pointer"
+                  />
+                </div>
               </div>
+            </section>
+
+            {/* Publish date */}
+            <section className="space-y-4">
+              <h3 className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-gunmetal/40 dark:text-pale-sky/40">
+                <CalendarDaysIcon className="w-3 h-3" /> Fecha de Publicación
+              </h3>
+              <input
+                type="datetime-local"
+                value={toLocalInput(publishedAt)}
+                onChange={(e) => setPublishedAt(fromLocalInput(e.target.value))}
+                className={inputClass}
+              />
+              <p className="text-[9px] text-gunmetal/40 dark:text-pale-sky/40 leading-relaxed">
+                Dejala vacía para que se fije automáticamente al publicar. Podés antedatar un artículo si lo necesitás.
+              </p>
             </section>
 
             {/* URL & Meta */}
@@ -344,10 +494,28 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
                   type="text"
                   value={slug}
                   onChange={(e) => setSlug(e.target.value)}
-                  className="w-full px-4 py-2 text-xs rounded-xl border border-dust-grey/20 dark:border-pale-sky/10 bg-white/50 dark:bg-gunmetal/30 text-cool-sky font-mono"
+                  className={`${inputClass} text-cool-sky font-mono`}
                   placeholder="slug-del-post"
                 />
               </div>
+            </section>
+
+            {/* Excerpt / Resumen */}
+            <section className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-gunmetal/40 dark:text-pale-sky/40">
+                  <DocumentTextIcon className="w-3 h-3" /> Resumen <span className="text-red-400 normal-case">*</span>
+                </h3>
+                <CharMeter value={excerpt.length} max={EXCERPT_MAX} min={50} />
+              </div>
+              <textarea
+                value={excerpt}
+                onChange={(e) => setExcerpt(e.target.value)}
+                rows={3}
+                maxLength={EXCERPT_MAX}
+                placeholder="Frase gancho que resume el artículo. Se usa en las tarjetas del blog y como meta description si no completás una específica."
+                className={`${inputClass} resize-none leading-relaxed`}
+              />
             </section>
 
             {/* Cover Image */}
@@ -358,7 +526,8 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
               <div className="group relative aspect-video rounded-2xl border-2 border-dashed border-dust-grey/30 dark:border-pale-sky/20 overflow-hidden bg-white/5 dark:bg-gunmetal/20 flex items-center justify-center transition-all hover:border-cool-sky/50">
                 {coverImage ? (
                   <>
-                    <img src={coverImage} className="w-full h-full object-cover" alt="Cover" />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={coverImage} className="w-full h-full object-cover" alt={coverImageAlt || 'Cover'} />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                       <button onClick={() => setCoverImage('')} className="p-2 bg-white/10 backdrop-blur-md rounded-xl text-white hover:bg-white/20">Remover</button>
                     </div>
@@ -374,9 +543,21 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
                 type="url"
                 value={coverImage}
                 onChange={(e) => setCoverImage(e.target.value)}
-                className="w-full px-4 py-2 text-xs rounded-xl border border-dust-grey/20 dark:border-pale-sky/10 bg-white/50 dark:bg-gunmetal/30"
+                className={inputClass}
                 placeholder="https://images.unsplash.com/..."
               />
+              {coverImage && (
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold opacity-50 uppercase">Texto alternativo (alt)</label>
+                  <input
+                    type="text"
+                    value={coverImageAlt}
+                    onChange={(e) => setCoverImageAlt(e.target.value)}
+                    className={inputClass}
+                    placeholder="Describe la imagen para accesibilidad y SEO"
+                  />
+                </div>
+              )}
             </section>
 
             {/* Tags */}
@@ -390,7 +571,7 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyDown={handleAddTag}
-                  className="w-full px-4 py-2 text-xs rounded-xl border border-dust-grey/20 dark:border-pale-sky/10 bg-white/50 dark:bg-gunmetal/30"
+                  className={inputClass}
                   placeholder="Añadir etiqueta y Enter..."
                 />
                 <div className="flex flex-wrap gap-2">
@@ -407,39 +588,86 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
             {/* SEO Tool */}
             <section className="space-y-4">
               <h3 className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-gunmetal/40 dark:text-pale-sky/40">
-                <DocumentTextIcon className="w-3 h-3" /> SEO & Social
+                <GlobeAltIcon className="w-3 h-3" /> SEO & Social
               </h3>
               <div className="space-y-3">
                 <div className="space-y-1">
-                  <label className="text-[9px] font-bold opacity-50 uppercase">SEO Title</label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-[9px] font-bold opacity-50 uppercase">SEO Title</label>
+                    <div className="flex items-center gap-2">
+                      {!seoTitle && title && (
+                        <button
+                          type="button"
+                          onClick={() => setSeoTitle(title.slice(0, SEO_TITLE_MAX))}
+                          className="text-[9px] font-bold text-cool-sky hover:underline"
+                        >
+                          usar título
+                        </button>
+                      )}
+                      <CharMeter value={effectiveSeoTitle.length} ideal={SEO_TITLE_MAX} max={SEO_TITLE_MAX} />
+                    </div>
+                  </div>
                   <input
                     type="text"
                     value={seoTitle}
                     onChange={(e) => setSeoTitle(e.target.value)}
-                    className="w-full px-4 py-2 text-xs rounded-xl border border-dust-grey/20 dark:border-pale-sky/10 bg-white/50 dark:bg-gunmetal/30"
+                    placeholder={title || 'Título para buscadores'}
+                    className={inputClass}
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[9px] font-bold opacity-50 uppercase">SEO Description</label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-[9px] font-bold opacity-50 uppercase">SEO Description</label>
+                    <div className="flex items-center gap-2">
+                      {!seoDescription && excerpt && (
+                        <button
+                          type="button"
+                          onClick={() => setSeoDescription(excerpt.slice(0, SEO_DESC_MAX))}
+                          className="text-[9px] font-bold text-cool-sky hover:underline"
+                        >
+                          usar resumen
+                        </button>
+                      )}
+                      <CharMeter value={effectiveSeoDesc.length} ideal={SEO_DESC_MAX} max={SEO_DESC_MAX} min={SEO_DESC_MIN} />
+                    </div>
+                  </div>
                   <textarea
                     value={seoDescription}
                     onChange={(e) => setSeoDescription(e.target.value)}
                     rows={3}
-                    className="w-full px-4 py-2 text-xs rounded-xl border border-dust-grey/20 dark:border-pale-sky/10 bg-white/50 dark:bg-gunmetal/30 resize-none"
+                    placeholder={excerpt || 'Descripción para resultados de búsqueda (120-160 caracteres)'}
+                    className={`${inputClass} resize-none`}
                   />
+                </div>
+
+                {/* Vista previa de resultado de Google */}
+                <div className="mt-2 p-3 rounded-xl bg-white dark:bg-gunmetal/50 border border-dust-grey/20 dark:border-pale-sky/10 space-y-0.5">
+                  <p className="text-[8px] uppercase tracking-widest font-black text-gunmetal/30 dark:text-pale-sky/30 mb-1">Vista previa Google</p>
+                  <p className="text-[11px] text-[#1a0dab] dark:text-[#8ab4f8] truncate leading-tight">{effectiveSeoTitle || 'Título del post'}</p>
+                  <p className="text-[9px] text-green-700 dark:text-green-500 truncate">tomasameri.com › blog › {slug || 'slug'}</p>
+                  <p className="text-[10px] text-gunmetal/60 dark:text-pale-sky/60 line-clamp-2 leading-snug">{effectiveSeoDesc || 'La meta description aparecerá acá...'}</p>
                 </div>
               </div>
             </section>
         </aside>
 
-        {/* Floating Mobile Bottom Nav (Optional) */}
-        <div className="xl:hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/80 dark:bg-gunmetal/80 backdrop-blur-xl border border-dust-grey/20 dark:border-pale-sky/10 px-6 py-3 rounded-3xl shadow-2xl flex gap-8 z-50">
-           <button onClick={() => setActiveTab('content')} className={`p-2 ${activeTab === 'content' ? 'text-cool-sky' : 'text-gunmetal/40'}`}><PencilIcon className="w-6 h-6" /></button>
-           <button onClick={() => setActiveTab('metadata')} className={`p-2 ${activeTab === 'metadata' ? 'text-cool-sky' : 'text-gunmetal/40'}`}><TagIcon className="w-6 h-6" /></button>
-           <button onClick={() => setActiveTab('seo')} className={`p-2 ${activeTab === 'seo' ? 'text-cool-sky' : 'text-gunmetal/40'}`}><GlobeAltIcon className="w-6 h-6" /></button>
+        {/* Floating Mobile Bottom Nav — alterna entre escribir y ajustes/SEO en pantallas chicas. */}
+        <div className="xl:hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/90 dark:bg-gunmetal/90 backdrop-blur-xl border border-dust-grey/20 dark:border-pale-sky/10 px-4 py-2 rounded-3xl shadow-2xl flex gap-2 z-50">
+           <button
+             onClick={() => setActiveTab('content')}
+             className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-semibold transition-all ${activeTab === 'content' ? 'bg-cool-sky text-gunmetal' : 'text-gunmetal/50 dark:text-pale-sky/50'}`}
+           >
+             <PencilIcon className="w-5 h-5" /> Escribir
+           </button>
+           <button
+             onClick={() => setActiveTab('settings')}
+             className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-semibold transition-all ${activeTab === 'settings' ? 'bg-cool-sky text-gunmetal' : 'text-gunmetal/50 dark:text-pale-sky/50'}`}
+           >
+             <Cog6ToothIcon className="w-5 h-5" /> Ajustes
+             <span className={`text-[9px] font-black ${seoScore === seoChecks.length ? 'text-green-500' : 'text-amber-500'} ${activeTab === 'settings' ? '!text-gunmetal' : ''}`}>{seoScore}/{seoChecks.length}</span>
+           </button>
         </div>
       </main>
     </div>
   );
 }
-

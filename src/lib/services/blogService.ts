@@ -19,6 +19,8 @@ export interface BlogPost {
   seoDescription?: string;
   readingTime?: number;
   newsletter?: boolean;
+  coverImageAlt?: string;
+  noindex?: boolean;
 }
 
 export interface BlogPostDocument {
@@ -40,6 +42,8 @@ export interface BlogPostDocument {
   seoDescription?: string;
   readingTime?: number;
   newsletter?: boolean;
+  coverImageAlt?: string;
+  noindex?: boolean;
 }
 
 // Convertir documento de Appwrite a BlogPost
@@ -62,6 +66,8 @@ function documentToPost(doc: BlogPostDocument): BlogPost {
     seoDescription: doc.seoDescription,
     readingTime: doc.readingTime,
     newsletter: doc.newsletter || false,
+    coverImageAlt: doc.coverImageAlt,
+    noindex: doc.noindex || false,
   };
 }
 
@@ -234,7 +240,7 @@ export async function createPost(
   content: string,
   authorId: string,
   published: boolean = false,
-  metadata?: Partial<Pick<BlogPost, 'tags' | 'featured' | 'coverImage' | 'seoTitle' | 'seoDescription' | 'readingTime'>>
+  metadata?: Partial<Pick<BlogPost, 'tags' | 'featured' | 'coverImage' | 'coverImageAlt' | 'seoTitle' | 'seoDescription' | 'readingTime' | 'newsletter' | 'noindex' | 'publishedAt'>>
 ): Promise<BlogPost> {
   try {
     const databaseId = getDatabaseId();
@@ -245,14 +251,16 @@ export async function createPost(
     }
 
     const postData: Partial<BlogPostDocument> = {
+      ...metadata,
       title,
       slug,
       excerpt,
       content,
       published,
       authorId,
-      publishedAt: published ? new Date().toISOString() : undefined,
-      ...metadata,
+      // Respetamos un publishedAt provisto (backdating); si no, lo fijamos al publicar.
+      publishedAt:
+        metadata?.publishedAt || (published ? new Date().toISOString() : undefined),
     };
 
     const response = await databases.createDocument(
@@ -295,9 +303,10 @@ export async function updatePost(
     }
 
     const updateData: Partial<BlogPostDocument> = { ...updates };
-    
-    // Si se está publicando, actualizar publishedAt
-    if (updates.published === true) {
+
+    // Solo autogeneramos publishedAt al publicar si el form no envió una fecha explícita.
+    // Así respetamos el backdating y evitamos resetear la fecha en cada edición.
+    if (updates.published === true && !updates.publishedAt) {
       updateData.publishedAt = new Date().toISOString();
     }
 

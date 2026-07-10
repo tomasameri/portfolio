@@ -39,10 +39,13 @@ export async function generateMetadata({
   const description =
     post.seoDescription || post.excerpt || `${post.title} — ${SITE_NAME}`;
   const canonical = `${SITE_URL}/${lang}/blog/${post.slug}`;
+  const imageAlt = post.coverImageAlt || post.title;
 
   return {
     title,
     description,
+    // Respetamos el toggle "no indexar" del CMS para borradores o contenido privado.
+    robots: post.noindex ? { index: false, follow: false } : undefined,
     alternates: {
       canonical,
       languages: Object.fromEntries(
@@ -59,7 +62,9 @@ export async function generateMetadata({
       publishedTime: post.publishedAt,
       modifiedTime: post.updatedAt,
       tags: post.tags,
-      images: post.coverImage ? [{ url: post.coverImage }] : undefined,
+      images: post.coverImage
+        ? [{ url: post.coverImage, alt: imageAlt }]
+        : undefined,
     },
     twitter: {
       card: post.coverImage ? 'summary_large_image' : 'summary',
@@ -121,7 +126,7 @@ export default async function BlogPostPage({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={post.coverImage}
-              alt={post.title}
+              alt={post.coverImageAlt || post.title}
               className="w-full aspect-video object-cover hover:scale-[1.02] transition-transform duration-700"
             />
           </div>

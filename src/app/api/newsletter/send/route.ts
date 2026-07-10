@@ -14,7 +14,13 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { title, excerpt, slug } = body as { title?: string; excerpt?: string; slug?: string; };
+    const { title, excerpt, slug, coverImage, readingTime } = body as {
+      title?: string;
+      excerpt?: string;
+      slug?: string;
+      coverImage?: string;
+      readingTime?: number;
+    };
 
     if (!title || !slug) {
       return NextResponse.json(
@@ -23,7 +29,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = await sendNewsletterBroadcast({ title, excerpt: excerpt || '', slug });
+    const result = await sendNewsletterBroadcast({
+      title,
+      excerpt: excerpt || '',
+      slug,
+      coverImage,
+      readingTime,
+    });
 
     return NextResponse.json(result);
   } catch (error: any) {

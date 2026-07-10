@@ -33,6 +33,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const posts = await getPublishedPosts();
     for (const post of posts) {
+      // No incluimos en el sitemap los posts marcados como "no indexar".
+      if (post.noindex) continue;
+
       const lastModified = post.updatedAt
         ? new Date(post.updatedAt)
         : post.publishedAt

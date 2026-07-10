@@ -94,6 +94,16 @@ const blogAttributes = [
   { key: 'published', type: 'boolean', required: true }, // Sin default porque es required
   { key: 'publishedAt', type: 'string', size: 100, required: false },
   { key: 'authorId', type: 'string', size: 100, required: true },
+  // Campos editoriales / SEO
+  { key: 'tags', type: 'string', size: 100, required: false, array: true },
+  { key: 'featured', type: 'boolean', required: false },
+  { key: 'coverImage', type: 'string', size: 2000, required: false },
+  { key: 'coverImageAlt', type: 'string', size: 500, required: false },
+  { key: 'seoTitle', type: 'string', size: 70, required: false },
+  { key: 'seoDescription', type: 'string', size: 200, required: false },
+  { key: 'readingTime', type: 'integer', required: false, min: 0, max: 999 },
+  { key: 'newsletter', type: 'boolean', required: false },
+  { key: 'noindex', type: 'boolean', required: false },
 ];
 
 // Definición de atributos para la colección de proyectos
@@ -124,8 +134,8 @@ async function createAttribute(
         attribute.key,
         attribute.size,
         attribute.required,
-        undefined, // default value (opcional)
-        false      // array (opcional, false por defecto)
+        undefined,            // default value (opcional)
+        attribute.array ?? false // array (opcional, false por defecto)
       );
     } else if (attribute.type === 'integer') {
       // createIntegerAttribute(databaseId, collectionId, key, required, min?, max?, default?)

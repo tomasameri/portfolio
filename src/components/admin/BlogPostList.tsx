@@ -117,6 +117,8 @@ export default function BlogPostList() {
           title: post.title,
           excerpt: post.excerpt,
           slug: post.slug,
+          coverImage: post.coverImage,
+          readingTime: post.readingTime,
         })
       });
 
