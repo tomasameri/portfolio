@@ -15,6 +15,11 @@ export default function BlogPostList() {
 
   const [sendingId, setSendingId] = useState<string | null>(null);
 
+  // Vocabulario de conceptos ya usados, para que la IA los reutilice y no fragmente el grafo.
+  const existingConcepts = Array.from(
+    new Set(posts.flatMap((p) => p.concepts || []).filter(Boolean))
+  ).sort();
+
   useEffect(() => {
     loadPosts();
   }, []);
@@ -242,6 +247,7 @@ export default function BlogPostList() {
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
         onSave={handleSave}
+        existingConcepts={existingConcepts}
       />
     </div>
   );

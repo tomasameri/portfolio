@@ -13,6 +13,11 @@ export interface BlogPost {
   updatedAt: string;
   // New editorial fields
   tags?: string[];
+  // Conceptos clave del post (nodos compartidos del grafo neural). Se llenan
+  // automáticamente vía IA/heurística desde el CMS y se revisan a mano.
+  concepts?: string[];
+  // Vector semántico serializado (JSON de number[]) para conectar posts afines en el grafo.
+  embedding?: string;
   featured?: boolean;
   coverImage?: string;
   seoTitle?: string;
@@ -36,6 +41,9 @@ export interface BlogPostDocument {
   updatedAt: string;
   // New editorial fields
   tags?: string[];
+  concepts?: string[];
+  // Vector semántico serializado (JSON de number[]) para conectar posts afines en el grafo.
+  embedding?: string;
   featured?: boolean;
   coverImage?: string;
   seoTitle?: string;
@@ -60,6 +68,8 @@ function documentToPost(doc: BlogPostDocument): BlogPost {
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
     tags: doc.tags || [],
+    concepts: doc.concepts || [],
+    embedding: doc.embedding,
     featured: doc.featured || false,
     coverImage: doc.coverImage,
     seoTitle: doc.seoTitle,
@@ -240,7 +250,7 @@ export async function createPost(
   content: string,
   authorId: string,
   published: boolean = false,
-  metadata?: Partial<Pick<BlogPost, 'tags' | 'featured' | 'coverImage' | 'coverImageAlt' | 'seoTitle' | 'seoDescription' | 'readingTime' | 'newsletter' | 'noindex' | 'publishedAt'>>
+  metadata?: Partial<Pick<BlogPost, 'tags' | 'concepts' | 'embedding' | 'featured' | 'coverImage' | 'coverImageAlt' | 'seoTitle' | 'seoDescription' | 'readingTime' | 'newsletter' | 'noindex' | 'publishedAt'>>
 ): Promise<BlogPost> {
   try {
     const databaseId = getDatabaseId();

@@ -17,9 +17,12 @@ import {
   EnvelopeIcon,
   Cog6ToothIcon,
   CalendarDaysIcon,
+  SparklesIcon,
+  ShareIcon,
 } from '@heroicons/react/24/outline';
 import rehypeRaw from 'rehype-raw';
 import MarkdownPreview from './MarkdownPreview';
+import { account } from '@/lib/appwrite';
 
 // Importar el editor markdown de forma dinámica
 const MDEditor = dynamic(
@@ -40,6 +43,9 @@ interface BlogPostFormProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (data: Partial<Omit<BlogPost, 'id' | 'createdAt' | 'updatedAt' | 'authorId'>>) => Promise<void>;
+  // Vocabulario de conceptos ya usados en otros posts, para que la IA reutilice
+  // términos existentes (no fragmentar el grafo) y para autocompletar a mano.
+  existingConcepts?: string[];
 }
 
 // Contador de caracteres con feedback de color según el rango ideal para SEO.
@@ -81,7 +87,7 @@ function fromLocalInput(value: string): string {
   return isNaN(d.getTime()) ? '' : d.toISOString();
 }
 
-export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPostFormProps) {
+export default function BlogPostForm({ post, isOpen, onClose, onSave, existingConcepts = [] }: BlogPostFormProps) {
   // Core content
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
@@ -98,6 +104,10 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
   const [publishedAt, setPublishedAt] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
+  const [concepts, setConcepts] = useState<string[]>([]);
+  const [conceptInput, setConceptInput] = useState('');
+  const [suggesting, setSuggesting] = useState(false);
+  const [suggestNote, setSuggestNote] = useState('');
   const [seoTitle, setSeoTitle] = useState('');
   const [seoDescription, setSeoDescription] = useState('');
   const [readingTime, setReadingTime] = useState(0);
@@ -121,6 +131,7 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
       setCoverImageAlt(post.coverImageAlt || '');
       setPublishedAt(post.publishedAt || '');
       setTags(post.tags || []);
+      setConcepts(post.concepts || []);
       setSeoTitle(post.seoTitle || '');
       setSeoDescription(post.seoDescription || '');
       setReadingTime(post.readingTime || 0);
@@ -149,6 +160,9 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
     setCoverImageAlt('');
     setPublishedAt('');
     setTags([]);
+    setConcepts([]);
+    setConceptInput('');
+    setSuggestNote('');
     setSeoTitle('');
     setSeoDescription('');
     setReadingTime(0);
@@ -182,6 +196,117 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
 
   const removeTag = (tagToRemove: string) => {
     setTags(tags.filter(t => t !== tagToRemove));
+  };
+
+  const addConcept = (value: string) => {
+    const clean = value.trim();
+    if (!clean) return;
+    // Deduplicamos sin distinguir mayúsculas/acentos para no ensuciar el grafo.
+    const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (!concepts.some(c => norm(c) === norm(clean))) {
+      setConcepts([...concepts, clean]);
+    }
+  };
+
+  const handleAddConcept = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && conceptInput.trim()) {
+      e.preventDefault();
+      addConcept(conceptInput);
+      setConceptInput('');
+    }
+  };
+
+  const removeConcept = (conceptToRemove: string) => {
+    setConcepts(concepts.filter(c => c !== conceptToRemove));
+  };
+
+  // Genera el embedding semántico del post (vía Gemini) y lo devuelve serializado.
+  // No bloquea el guardado: si algo falla, devuelve undefined y se guarda sin embedding.
+  const computeEmbedding = async (): Promise<string | undefined> => {
+    try {
+      // Texto representativo: título + conceptos (peso alto) + resumen + inicio del contenido.
+      const text = [
+        title,
+        concepts.length ? `Conceptos: ${concepts.join(', ')}` : '',
+        excerpt,
+        content.slice(0, 4000),
+      ]
+        .filter(Boolean)
+        .join('\n\n')
+        .trim();
+      if (text.length < 5) return undefined;
+
+      const { jwt } = await account.createJWT();
+      const res = await fetch('/api/blog/embeddings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${jwt}`,
+        },
+        body: JSON.stringify({ text }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success || !Array.isArray(data.embedding)) return undefined;
+      return JSON.stringify(data.embedding);
+    } catch (error) {
+      console.error('Error computing embedding:', error);
+      return undefined;
+    }
+  };
+
+  // Llama al endpoint de IA/heurística y fusiona lo sugerido con lo que ya haya.
+  const handleSuggestConcepts = async () => {
+    if (!content.trim() && !title.trim()) {
+      setSuggestNote('Escribí algo de contenido primero.');
+      return;
+    }
+    setSuggesting(true);
+    setSuggestNote('');
+    try {
+      const { jwt } = await account.createJWT();
+      const res = await fetch('/api/blog/concepts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${jwt}`,
+        },
+        body: JSON.stringify({
+          title,
+          excerpt,
+          content,
+          existingConcepts,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        setSuggestNote(data?.error || 'No se pudieron sugerir conceptos.');
+        return;
+      }
+      const suggested: string[] = Array.isArray(data.concepts) ? data.concepts : [];
+      const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const merged = [...concepts];
+      let added = 0;
+      for (const c of suggested) {
+        const clean = c.trim();
+        if (clean && !merged.some(m => norm(m) === norm(clean))) {
+          merged.push(clean);
+          added++;
+        }
+      }
+      setConcepts(merged);
+      const via = data.source === 'gemini' ? 'IA (Gemini)' : 'heurística';
+      setSuggestNote(
+        (data.warning ? `⚠ ${data.warning} ` : '') +
+        (added > 0
+          ? `+${added} concepto(s) vía ${via}. Revisalos y ajustá.`
+          : `Sin conceptos nuevos (vía ${via}).`)
+      );
+    } catch (error) {
+      console.error('Error suggesting concepts:', error);
+      setSuggestNote('Error al conectar con el servicio de sugerencias.');
+    } finally {
+      setSuggesting(false);
+    }
   };
 
   // Valores efectivos que realmente se indexan (con sus fallbacks del render real).
@@ -228,6 +353,10 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
     }
     setSaving(true);
     try {
+      // Calculamos el embedding semántico del post para conectar artículos afines
+      // en el grafo. Si falla (sin API key, red, etc.), guardamos igual sin él.
+      const embedding = await computeEmbedding();
+
       await onSave({
         title,
         slug,
@@ -241,6 +370,8 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
         coverImageAlt: coverImageAlt.trim() !== '' ? coverImageAlt.trim() : null as any,
         publishedAt: publishedAt || undefined,
         tags,
+        concepts,
+        ...(embedding ? { embedding } : {}),
         seoTitle,
         seoDescription,
         readingTime
@@ -579,6 +710,54 @@ export default function BlogPostForm({ post, isOpen, onClose, onSave }: BlogPost
                     <span key={t} className="px-2 py-1 bg-cool-sky/10 text-cool-sky text-[10px] font-bold rounded-lg border border-cool-sky/20 flex items-center gap-1">
                       {t}
                       <button onClick={() => removeTag(t)} className="hover:text-red-500">✕</button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* Conceptos (grafo neural) */}
+            <section className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-gunmetal/40 dark:text-pale-sky/40">
+                  <ShareIcon className="w-3 h-3" /> Conceptos
+                </h3>
+                <button
+                  type="button"
+                  onClick={handleSuggestConcepts}
+                  disabled={suggesting}
+                  className="flex items-center gap-1 text-[9px] font-bold text-violet-500 hover:text-violet-400 disabled:opacity-40 transition-colors"
+                >
+                  <SparklesIcon className={`w-3 h-3 ${suggesting ? 'animate-pulse' : ''}`} />
+                  {suggesting ? 'Analizando...' : 'Sugerir con IA'}
+                </button>
+              </div>
+              <div className="space-y-3">
+                <p className="text-[9px] text-gunmetal/40 dark:text-pale-sky/40 leading-relaxed">
+                  Ideas o temas centrales del post. Conectan artículos en el grafo neural cuando comparten un concepto.
+                </p>
+                <input
+                  type="text"
+                  value={conceptInput}
+                  onChange={(e) => setConceptInput(e.target.value)}
+                  onKeyDown={handleAddConcept}
+                  className={inputClass}
+                  placeholder="Añadir concepto y Enter..."
+                  list="existing-concepts"
+                />
+                <datalist id="existing-concepts">
+                  {existingConcepts.map((c) => (
+                    <option key={c} value={c} />
+                  ))}
+                </datalist>
+                {suggestNote && (
+                  <p className="text-[9px] text-violet-500 leading-relaxed">{suggestNote}</p>
+                )}
+                <div className="flex flex-wrap gap-2">
+                  {concepts.map(c => (
+                    <span key={c} className="px-2 py-1 bg-violet-500/10 text-violet-500 text-[10px] font-bold rounded-lg border border-violet-500/20 flex items-center gap-1">
+                      {c}
+                      <button onClick={() => removeConcept(c)} className="hover:text-red-500">✕</button>
                     </span>
                   ))}
                 </div>
