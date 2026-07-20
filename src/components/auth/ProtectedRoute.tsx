@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { DEFAULT_LOCALE } from '@/lib/siteConfig';
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -11,7 +12,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
   useEffect(() => {
     if (!loading && !user) {
       // Obtener el locale actual de la URL
-      const currentLang = window.location.pathname.split('/')[1] || 'en';
+      const currentLang = window.location.pathname.split('/')[1] || DEFAULT_LOCALE;
       router.push(`/${currentLang}/admin/login`);
     }
   }, [user, loading, router]);

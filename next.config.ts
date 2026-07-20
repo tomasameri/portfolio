@@ -25,13 +25,16 @@ const nextConfig: NextConfig = {
   },
   // La raíz `/` no tiene página (todo vive bajo `/[lang]`). Sin este redirect
   // devolvía 404, dejando la home del dominio sin indexar. Redirige al locale
-  // por defecto. 307 (temporal) por si más adelante se agrega detección de idioma.
+  // por defecto (es) con 308 (permanente) para que Google consolide `/` en `/es`
+  // y deje de tratar `/es` como duplicado de la home. Si en el futuro se agrega
+  // detección de idioma, se hace detectando y renderizando el locale — NO
+  // redirigiendo, porque un redirect permanente por-usuario rompería el caché.
   async redirects() {
     return [
       {
         source: '/',
-        destination: '/en',
-        permanent: false,
+        destination: '/es',
+        permanent: true,
       },
     ];
   },

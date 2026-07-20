@@ -4,6 +4,7 @@
 import { createContext, useContext, ReactNode } from 'react';
 import enMessages from '@/messages/en.json';
 import esMessages from '@/messages/es.json';
+import { DEFAULT_LOCALE } from '@/lib/siteConfig';
 
 type Messages = typeof enMessages;
 
@@ -12,12 +13,14 @@ const messagesMap = {
   es: esMessages,
 } as const;
 
+const defaultMessages = messagesMap[DEFAULT_LOCALE];
+
 const LocaleContext = createContext<{
   locale: string;
   messages: Messages;
 }>({
-  locale: 'en',
-  messages: enMessages,
+  locale: DEFAULT_LOCALE,
+  messages: defaultMessages,
 });
 
 export function LocaleProvider({ 
@@ -27,8 +30,8 @@ export function LocaleProvider({
   children: ReactNode;
   lang: string;
 }) {
-  const locale = lang && ['en', 'es'].includes(lang) ? lang : 'en';
-  const messages = messagesMap[locale as keyof typeof messagesMap] || enMessages;
+  const locale = lang && ['en', 'es'].includes(lang) ? lang : DEFAULT_LOCALE;
+  const messages = messagesMap[locale as keyof typeof messagesMap] || defaultMessages;
 
   return (
     <LocaleContext.Provider value={{ locale, messages }}>
@@ -41,7 +44,7 @@ export function useLocale() {
   const context = useContext(LocaleContext);
   if (!context) {
     console.warn('useLocale called outside of LocaleProvider');
-    return { locale: 'en', messages: enMessages };
+    return { locale: DEFAULT_LOCALE, messages: defaultMessages };
   }
   return context;
 }

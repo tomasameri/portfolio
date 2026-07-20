@@ -7,7 +7,7 @@ import SettingsDock from "@/components/SettingsDock";
 import HtmlLang from "@/components/HtmlLang";
 import JsonLd from "@/components/JsonLd";
 import { personSchema, webSiteSchema } from "@/lib/schema";
-import { SITE_URL, LOCALES } from "@/lib/siteConfig";
+import { SITE_URL, LOCALES, DEFAULT_LOCALE } from "@/lib/siteConfig";
 
 export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'es' }];
@@ -19,14 +19,15 @@ export async function generateMetadata({
   params: Promise<{ lang: string }>;
 }): Promise<Metadata> {
   const { lang } = await params;
-  const locale = LOCALES.includes(lang as (typeof LOCALES)[number]) ? lang : 'en';
+  const locale = LOCALES.includes(lang as (typeof LOCALES)[number]) ? lang : DEFAULT_LOCALE;
 
   return {
     alternates: {
       canonical: `${SITE_URL}/${locale}`,
-      languages: Object.fromEntries(
-        LOCALES.map((l) => [l, `${SITE_URL}/${l}`])
-      ),
+      languages: {
+        ...Object.fromEntries(LOCALES.map((l) => [l, `${SITE_URL}/${l}`])),
+        'x-default': `${SITE_URL}/${DEFAULT_LOCALE}`,
+      },
     },
     openGraph: {
       locale: locale === 'es' ? 'es_ES' : 'en_US',
@@ -42,7 +43,7 @@ export default async function LangLayout({
   params: Promise<{ lang: string }>;
 }) {
   const { lang } = await params;
-  const locale = lang && ['en', 'es'].includes(lang) ? lang : 'en';
+  const locale = lang && LOCALES.includes(lang as (typeof LOCALES)[number]) ? lang : DEFAULT_LOCALE;
 
   return (
     <ThemeProvider>

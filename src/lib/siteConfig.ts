@@ -8,7 +8,7 @@ export const SITE_URL = (
 
 export const LOCALES = ['en', 'es'] as const;
 export type Locale = (typeof LOCALES)[number];
-export const DEFAULT_LOCALE: Locale = 'en';
+export const DEFAULT_LOCALE: Locale = 'es';
 
 export const SITE_NAME = 'Tomas Ameri';
 export const SITE_TITLE = 'Tomas Ameri | Portfolio & Blog';

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { SITE_URL, SITE_NAME, LOCALES } from '@/lib/siteConfig';
+import { SITE_URL, SITE_NAME, LOCALES, DEFAULT_LOCALE } from '@/lib/siteConfig';
 
 type Loc = (typeof LOCALES)[number];
 
@@ -26,7 +26,7 @@ export function pageMetadata(
 ): Metadata {
   const locale: Loc = (LOCALES as readonly string[]).includes(langRaw)
     ? (langRaw as Loc)
-    : 'en';
+    : DEFAULT_LOCALE;
 
   const { title, description } = copy[locale];
   const canonical = `${SITE_URL}/${locale}${path}`;
@@ -38,7 +38,7 @@ export function pageMetadata(
       canonical,
       languages: {
         ...Object.fromEntries(LOCALES.map((l) => [l, `${SITE_URL}/${l}${path}`])),
-        'x-default': `${SITE_URL}/en${path}`,
+        'x-default': `${SITE_URL}/${DEFAULT_LOCALE}${path}`,
       },
     },
     openGraph: {

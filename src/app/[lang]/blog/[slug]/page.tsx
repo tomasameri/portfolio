@@ -9,7 +9,7 @@ import { getPostBySlug } from '@/lib/services/blogService';
 import NewsletterToast from '@/components/NewsletterToast';
 import JsonLd from '@/components/JsonLd';
 import { blogPostingSchema, breadcrumbSchema } from '@/lib/schema';
-import { SITE_URL, SITE_NAME, LOCALES } from '@/lib/siteConfig';
+import { SITE_URL, SITE_NAME, LOCALES, DEFAULT_LOCALE } from '@/lib/siteConfig';
 
 // Server-render en cada request para reflejar posts nuevos/editados y su metadata.
 export const dynamic = 'force-dynamic';
@@ -38,7 +38,10 @@ export async function generateMetadata({
   const title = post.seoTitle || post.title;
   const description =
     post.seoDescription || post.excerpt || `${post.title} — ${SITE_NAME}`;
-  const canonical = `${SITE_URL}/${lang}/blog/${post.slug}`;
+  // Los posts no están traducidos: /en y /es sirven el mismo contenido. Para no
+  // generar duplicados, TODAS las variantes de locale apuntan su canonical a la
+  // URL del locale por defecto (/en). Así Google consolida en una sola página.
+  const canonical = `${SITE_URL}/${DEFAULT_LOCALE}/blog/${post.slug}`;
   const imageAlt = post.coverImageAlt || post.title;
 
   return {
@@ -48,9 +51,12 @@ export async function generateMetadata({
     robots: post.noindex ? { index: false, follow: false } : undefined,
     alternates: {
       canonical,
-      languages: Object.fromEntries(
-        LOCALES.map((l) => [l, `${SITE_URL}/${l}/blog/${post.slug}`])
-      ),
+      languages: {
+        ...Object.fromEntries(
+          LOCALES.map((l) => [l, `${SITE_URL}/${l}/blog/${post.slug}`])
+        ),
+        'x-default': canonical,
+      },
     },
     openGraph: {
       type: 'article',

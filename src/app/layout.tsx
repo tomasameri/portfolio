@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans, Manrope, Space_Grotesk, Anonymous_Pro } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
-import { SITE_URL, SITE_NAME, SITE_TITLE, SITE_DESCRIPTION } from '@/lib/siteConfig';
+import { SITE_URL, SITE_NAME, SITE_TITLE, SITE_DESCRIPTION, DEFAULT_LOCALE } from '@/lib/siteConfig';
 
 // ─── Editorial Design System Fonts ───────────────────────────────────────
 const plusJakarta = Plus_Jakarta_Sans({
@@ -86,7 +86,7 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang="en"
+      lang={DEFAULT_LOCALE}
       className={`${plusJakarta.variable} ${manrope.variable} ${spaceGrotesk.variable} ${anonymousPro.variable}`}
       suppressHydrationWarning
     >

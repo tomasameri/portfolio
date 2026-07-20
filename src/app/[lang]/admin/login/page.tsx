@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import LoginForm from '@/components/auth/LoginForm';
+import { DEFAULT_LOCALE } from '@/lib/siteConfig';
 
 export default function AdminLoginPage() {
   const { user, loading } = useAuth();
@@ -12,7 +13,7 @@ export default function AdminLoginPage() {
   useEffect(() => {
     // Si ya está autenticado, redirigir al dashboard con el locale actual
     if (!loading && user) {
-      const currentLang = window.location.pathname.split('/')[1] || 'en';
+      const currentLang = window.location.pathname.split('/')[1] || DEFAULT_LOCALE;
       router.push(`/${currentLang}/admin`);
     }
   }, [user, loading, router]);
