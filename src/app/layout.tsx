@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans, Manrope, Space_Grotesk, Anonymous_Pro } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
-import { SITE_URL, SITE_NAME, SITE_TITLE, SITE_DESCRIPTION, DEFAULT_LOCALE } from '@/lib/siteConfig';
+import { SITE_URL, SITE_NAME, SITE_TITLE, SITE_DESCRIPTION, DEFAULT_LOCALE, LOCALES } from '@/lib/siteConfig';
 
 // ─── Editorial Design System Fonts ───────────────────────────────────────
 const plusJakarta = Plus_Jakarta_Sans({
@@ -46,7 +46,11 @@ export const metadata: Metadata = {
   authors: [{ name: SITE_NAME, url: SITE_URL }],
   creator: SITE_NAME,
   alternates: {
-    canonical: '/',
+    canonical: `${SITE_URL}/${DEFAULT_LOCALE}`,
+    languages: {
+      ...Object.fromEntries(LOCALES.map((l) => [l, `${SITE_URL}/${l}`])),
+      'x-default': `${SITE_URL}/${DEFAULT_LOCALE}`,
+    },
   },
   openGraph: {
     type: 'website',

@@ -8,6 +8,9 @@ import remarkWikiLink from 'remark-wiki-link';
 import { getPostBySlug } from '@/lib/services/blogService';
 import NewsletterToast from '@/components/NewsletterToast';
 import JsonLd from '@/components/JsonLd';
+import KeyTakeaways from '@/components/blog/KeyTakeaways';
+import SocialShareBar from '@/components/blog/SocialShareBar';
+import AuthorBioCard from '@/components/blog/AuthorBioCard';
 import { blogPostingSchema, breadcrumbSchema } from '@/lib/schema';
 import { SITE_URL, SITE_NAME, LOCALES, DEFAULT_LOCALE } from '@/lib/siteConfig';
 
@@ -97,7 +100,7 @@ export default async function BlogPostPage({
             Post no encontrado
           </h1>
           <Link
-            href="/blog"
+            href={`/${lang}/blog`}
             className="text-cool-sky hover:text-cool-sky/80 transition-colors"
           >
             ← Volver al blog
@@ -120,7 +123,7 @@ export default async function BlogPostPage({
         ]}
       />
       <Link
-        href="/blog"
+        href={`/${lang}/blog`}
         className="text-cool-sky hover:text-cool-sky/80 transition-all mb-8 inline-flex items-center gap-2 group"
       >
         <span className="group-hover:-translate-x-1 transition-transform">←</span> Volver al blog
@@ -153,7 +156,7 @@ export default async function BlogPostPage({
           {post.title}
         </h1>
 
-        <div className="flex items-center gap-4 text-sm text-gunmetal/40 dark:text-pale-sky/40 mb-12 pb-12 border-b border-dust-grey/10 dark:border-pale-sky/10">
+        <div className="flex items-center gap-4 text-sm text-gunmetal/40 dark:text-pale-sky/40 mb-8 pb-8 border-b border-dust-grey/10 dark:border-pale-sky/10">
           {post.publishedAt && (
             <time dateTime={post.publishedAt}>
               {new Date(post.publishedAt).toLocaleDateString('es-ES', {
@@ -171,14 +174,24 @@ export default async function BlogPostPage({
           )}
         </div>
 
-        <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-display prose-headings:tracking-tight prose-a:text-cool-sky prose-img:rounded-3xl prose-pre:bg-gunmetal prose-pre:rounded-2xl shadow-cool-sky/5">
+        {/* AI & Human Key Takeaways Summary Block */}
+        <KeyTakeaways excerpt={post.excerpt} isEs={lang === 'es'} />
+
+        {/* Top Social Share Bar */}
+        <SocialShareBar
+          title={post.title}
+          url={`${SITE_URL}/${lang}/blog/${post.slug}`}
+          isEs={lang === 'es'}
+        />
+
+        <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-display prose-headings:tracking-tight prose-a:text-cool-sky prose-img:rounded-3xl prose-pre:bg-gunmetal prose-pre:rounded-2xl shadow-cool-sky/5 my-12">
           <ReactMarkdown
             remarkPlugins={[
               remarkGfm,
               [remarkWikiLink, {
                 aliasDivider: '|',
                 pageResolver: (name: string) => [name.trim()],
-                hrefTemplate: (permalink: string) => `/blog/${permalink.trim()}`
+                hrefTemplate: (permalink: string) => `/${lang}/blog/${permalink.trim()}`
               }]
             ]}
             rehypePlugins={[rehypeRaw]}
@@ -186,6 +199,16 @@ export default async function BlogPostPage({
             {post.content}
           </ReactMarkdown>
         </div>
+
+        {/* Bottom Social Share Bar */}
+        <SocialShareBar
+          title={post.title}
+          url={`${SITE_URL}/${lang}/blog/${post.slug}`}
+          isEs={lang === 'es'}
+        />
+
+        {/* E-E-A-T Author Identity Box & Social Follow CTAs */}
+        <AuthorBioCard lang={lang} />
       </article>
       <NewsletterToast />
     </div>

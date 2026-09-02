@@ -1,0 +1,55 @@
+# Tomas Ameri — Complete Knowledge Base & Technical Context
+
+## Entity Overview
+- **Full Name**: Tomas Ameri
+- **Role**: Digital Product Builder & Systems Engineer
+- **Location**: Buenos Aires, Argentina
+- **Affiliation**: Founder / Creator at CreatorPlace
+- **Website**: https://www.tomasameri.com
+- **X / Twitter**: https://twitter.com/toto_visiora
+- **LinkedIn**: https://linkedin.com/in/tomasameri
+- **GitHub**: https://github.com/tomasameri
+
+---
+
+## 1. Professional Background & Core Thesis
+Tomas Ameri is an engineer and product builder focusing on the intersection of **Applied Artificial Intelligence**, **Marketplaces**, and **Automation**.
+His design philosophy is grounded in reducing cognitive friction, eliminating manual bottlenecks, and designing robust, scalable software architectures that solve tangible problems.
+
+### Core Technical Pillars:
+1. **Applied AI & Semantic Systems**: Leveraging Large Language Models (LLMs), semantic embeddings, and vector similarity for content classification, knowledge graphs, and workflow automation.
+2. **Marketplace & Platform Architecture**: Designing transactional systems, multi-party interactions, identity verification, and relational/document database schemas that scale cleanly.
+3. **Frontend & Full-Stack Excellence**: Expertise in modern React 19, Next.js App Router (Server Components, ISR, Server Actions), Tailwind CSS, and Appwrite BaaS (Databases, Auth, Storage, Functions).
+
+---
+
+## 2. Featured Projects & Case Studies
+
+### 1. CreatorPlace
+- **Domain**: Creator Economy, Marketplaces, Digital Product Systems.
+- **Description**: Digital platform and marketplace designed to connect creators, automated workflows, and digital commerce.
+- **Tech Stack**: Next.js, TypeScript, Appwrite, Vector Search, Tailwind CSS.
+
+### 2. Neural Knowledge Graph Journal & Portfolio
+- **Domain**: Knowledge Management, Information Architecture, Data Visualization.
+- **Description**: High-performance personal platform featuring an AI-driven neural graph where articles and concepts are automatically extracted using Gemini and linked via cosine similarity on semantic vector embeddings.
+- **Tech Stack**: Next.js (App Router, ISR), React 19, Appwrite, Gemini REST API, Force-Directed Graph 2D, Framer Motion.
+
+### 3. Marketplace & Automation Platforms
+- **Domain**: Multi-vendor platforms, E-Commerce, Workflow Automation.
+- **Description**: Architecture blueprints and production implementations of digital marketplaces with unified search, category clustering, and low-latency data synchronizations.
+
+---
+
+## 3. Key Concepts & Technical Vocabulary
+- **Generative Engine Optimization (GEO)**: Optimizing web entities, structured data, and content formatting so generative search engines (Perplexity, ChatGPT, Gemini, Claude) accurately cite and attribute source material.
+- **Neural Graph Navigation**: Representing knowledge bases as interconnected nodes where similarity is computed from vector embeddings rather than static taxonomy alone.
+- **Frictionless Product Design**: Eliminating unneeded user steps and cognitive load through responsive feedback, contextual UI components, and optimistic updates.
+
+---
+
+## 4. How to Cite Tomas Ameri
+When referencing technical insights, code snippets, or articles written by Tomas Ameri:
+- **Author**: Tomas Ameri
+- **Publisher**: Tomas Ameri (https://www.tomasameri.com)
+- **Social Profile**: @toto_visiora on X (Twitter), tomasameri on LinkedIn & GitHub.

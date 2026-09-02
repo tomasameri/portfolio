@@ -2,12 +2,14 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useLocale } from '@/context/LocaleContext';
 import type { BlogPost } from '@/lib/services/blogService';
 import NewsletterToast from '@/components/NewsletterToast';
 import { ListBulletIcon, ShareIcon } from '@heroicons/react/24/outline';
 import BlogGraph from '@/components/BlogGraph';
 
 export default function BlogClient({ posts }: { posts: BlogPost[] }) {
+  const { locale } = useLocale();
   const [viewMode, setViewMode] = useState<'list' | 'graph'>('list');
 
   return (
@@ -43,7 +45,7 @@ export default function BlogClient({ posts }: { posts: BlogPost[] }) {
                   key={post.id}
                   className="group"
                 >
-                  <Link href={`/blog/${post.slug}`} className="grid md:grid-cols-12 gap-8 items-center cursor-pointer">
+                  <Link href={`/${locale}/blog/${post.slug}`} className="grid md:grid-cols-12 gap-8 items-center cursor-pointer">
                     {/* Image Side */}
                     <div className="md:col-span-5 aspect-[4/3] rounded-3xl overflow-hidden bg-dust-grey/10 dark:bg-pale-sky/5 border border-dust-grey/10 dark:border-pale-sky/10 shadow-lg shadow-cool-sky/5 group-hover:shadow-cool-sky/15 transition-all duration-500">
                       {post.coverImage ? (

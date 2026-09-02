@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { AuthProvider } from "@/context/AuthContext";
 import NavigationSidebar from "@/components/NavigationSidebar";
 import SettingsDock from "@/components/SettingsDock";
+import Footer from "@/components/Footer";
 import HtmlLang from "@/components/HtmlLang";
 import JsonLd from "@/components/JsonLd";
 import { personSchema, webSiteSchema } from "@/lib/schema";
@@ -58,6 +59,7 @@ export default async function LangLayout({
             <main className="transition-colors duration-200">
               {children}
             </main>
+            <Footer />
           </div>
         </LocaleProvider>
       </AuthProvider>

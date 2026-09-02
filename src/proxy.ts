@@ -1,64 +1,45 @@
 // src/proxy.ts
 import { NextResponse, type NextRequest } from 'next/server';
-
-// Supported languages
-const locales = ['en', 'es'];
-const defaultLocale = 'en';
-
-function getLocale(request: NextRequest): string {
-  const acceptLanguage = request.headers.get('accept-language');
-  if (acceptLanguage) {
-    const preferredLang = acceptLanguage.split(',')[0].split('-')[0].toLowerCase();
-    if (locales.includes(preferredLang)) {
-      return preferredLang;
-    }
-  }
-  return defaultLocale;
-}
+import { LOCALES, DEFAULT_LOCALE } from '@/lib/siteConfig';
 
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  
-  // Skip static files, API routes, etc.
+
+  // Skip static files, Next.js internal routes, API endpoints, and metadata assets
   if (
-    pathname.startsWith('/_next/') || 
-    pathname.includes('.') || 
+    pathname.startsWith('/_next/') ||
     pathname.startsWith('/api/') ||
+    pathname.includes('.') ||
     pathname === '/favicon.ico' ||
-    pathname === '/next.svg' ||
-    pathname === '/vercel.svg' ||
-    pathname === '/file.svg' ||
-    pathname === '/globe.svg' ||
-    pathname === '/window.svg'
+    pathname === '/robots.txt' ||
+    pathname === '/sitemap.xml' ||
+    pathname === '/llms.txt' ||
+    pathname === '/llms-full.txt' ||
+    pathname === '/site.webmanifest'
   ) {
     return NextResponse.next();
   }
 
-  // Check if the path has a valid locale
-  const pathnameHasLocale = locales.some(
+  // Check if pathname already starts with a supported locale
+  const pathnameHasLocale = LOCALES.some(
     (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)
   );
 
-  // If the path already has a valid locale, continue
   if (pathnameHasLocale) {
     return NextResponse.next();
   }
 
-  // Redirect to the default locale if the path is the root
+  // If path is root '/', redirect to default locale (/es) permanently
   if (pathname === '/') {
-    const locale = getLocale(req);
-    const url = new URL(`/${locale}`, req.url);
-    return NextResponse.redirect(url);
+    const url = new URL(`/${DEFAULT_LOCALE}`, req.url);
+    return NextResponse.redirect(url, 308);
   }
 
-  // For other paths, try to prepend the locale
-  const locale = getLocale(req);
-  const newPathname = `/${locale}${pathname}`;
-  const url = new URL(newPathname, req.url);
-  return NextResponse.redirect(url);
+  // For other paths without locale prefix, prepend default locale
+  const url = new URL(`/${DEFAULT_LOCALE}${pathname}`, req.url);
+  return NextResponse.redirect(url, 308);
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|public/).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\..*|api).*)'],
 };
-

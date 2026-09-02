@@ -6,9 +6,10 @@ import { motion } from 'framer-motion';
 import { FiCpu, FiLayers, FiTrendingUp } from 'react-icons/fi';
 import EditorialTitle from '@/components/ui/EditorialTitle';
 import Card from '@/components/ui/Card';
+import AuthorBioCard from '@/components/blog/AuthorBioCard';
 
 export default function AboutPage() {
-  const { messages } = useLocale();
+  const { locale, messages } = useLocale();
   const t = messages.about;
 
   const containerVariants = {
@@ -102,6 +103,11 @@ export default function AboutPage() {
             </Card>
           </motion.section>
         </div>
+
+        {/* Social & E-E-A-T Conversion Box */}
+        <motion.div variants={itemVariants}>
+          <AuthorBioCard lang={locale} />
+        </motion.div>
 
       </motion.div>
     </div>

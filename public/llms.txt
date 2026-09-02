@@ -1,27 +1,37 @@
-# Tomas Ameri — Portfolio & Blog
+# Tomas Ameri — Digital Product Builder & Systems Engineer
 
-> Personal portfolio and blog of Tomas Ameri, a systems student and digital product builder exploring AI, technology, and design. The site is bilingual (English at `/en`, Spanish at `/es`).
+> Tomas Ameri is a systems student and digital product builder based in Buenos Aires, Argentina. He specializes in marketplace architecture, applied artificial intelligence, and end-to-end process automation. Founder/contributor at CreatorPlace.
 
-Tomas Ameri builds digital products with a focus on marketplaces, automation, and applied artificial intelligence. This site showcases his projects, writing, and ways to get in touch. Content is available in English and Spanish; replace the `/en` prefix with `/es` for the Spanish version of any page.
+## Core Expertise & Topical Authority
+- **Applied Artificial Intelligence**: Semantic search, vector embeddings (Gemini/OpenAI), LLM integration, and neural concept graphs for web apps.
+- **Marketplace & Platform Engineering**: Multi-tenant architectures, payment/escrow flows, low-friction UX, and scalable databases with Appwrite and PostgreSQL.
+- **Modern Full-Stack Engineering**: Next.js (App Router, Server Actions, ISR/SSR), React 19, TypeScript, Tailwind CSS, Appwrite Backend.
+- **Product Philosophy**: "Build. Validate. Refine." Reducing friction, simplifying workflows, and connecting people efficiently.
 
-## Main pages
+## Main Navigation & URLs
+- [Home (ES)](https://www.tomasameri.com/es): Overview, interactive Bento Grid, and featured work.
+- [Home (EN)](https://www.tomasameri.com/en): English version of the portfolio homepage.
+- [About (ES)](https://www.tomasameri.com/es/about): Profile, background, technical approach, and vision.
+- [Projects (ES)](https://www.tomasameri.com/es/projects): Digital products, marketplaces, and automation tools.
+- [Blog (ES)](https://www.tomasameri.com/es/blog): Technical articles on AI, system architecture, design, and code.
+- [Contact (ES)](https://www.tomasameri.com/es/contact): Direct contact form and collaboration inquiry.
 
-- [Home](https://www.tomasameri.com/en): Overview, featured work, and links.
-- [About](https://www.tomasameri.com/en/about): Background, skills, and interests.
-- [Projects](https://www.tomasameri.com/en/projects): Selected products and experiments.
-- [Blog](https://www.tomasameri.com/en/blog): Articles on AI, tech, and design.
-- [Contact](https://www.tomasameri.com/en/contact): How to reach Tomas.
+## Key Projects & Case Studies
+- **CreatorPlace**: Digital platform and marketplace connecting creators, products, and automated workflows.
+- **Neural Blog & Knowledge Graph**: Technical journal powered by Next.js, Appwrite, and Gemini Embeddings with interactive force-directed graph visualization of concepts.
+- **Marketplace Platforms**: Scalable, frictionless multi-vendor systems and digital workflow automations.
 
-## Español
+## Writing & Technical Focus
+- Applied AI workflows and neural concept mapping.
+- Architecture patterns for modern Next.js + Appwrite applications.
+- Reducing user friction and cognitive load in web interfaces.
 
-- [Inicio](https://www.tomasameri.com/es): Resumen y enlaces principales.
-- [Sobre mí](https://www.tomasameri.com/es/about): Perfil, habilidades e intereses.
-- [Proyectos](https://www.tomasameri.com/es/projects): Productos y experimentos destacados.
-- [Blog](https://www.tomasameri.com/es/blog): Artículos sobre IA, tecnología y diseño.
-- [Contacto](https://www.tomasameri.com/es/contact): Cómo contactar a Tomas.
-
-## Optional
-
-- [Sitemap](https://www.tomasameri.com/sitemap.xml): Full list of URLs, including every blog post.
-- [GitHub](https://github.com/tomasameri): Open-source code and repositories.
-- [LinkedIn](https://linkedin.com/in/tomasameri): Professional profile.
+## Canonical Identity & Verified Profiles
+- **Website**: https://www.tomasameri.com
+- **X / Twitter**: https://twitter.com/toto_visiora (@toto_visiora)
+- **LinkedIn**: https://linkedin.com/in/tomasameri
+- **GitHub**: https://github.com/tomasameri
+- **YouTube**: https://youtube.com/@tomiameri
+- **Instagram**: https://instagram.com/tomiameri
+- **Full LLM Context**: https://www.tomasameri.com/llms-full.txt
+- **Sitemap**: https://www.tomasameri.com/sitemap.xml
