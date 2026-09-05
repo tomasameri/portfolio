@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { LocaleProvider } from "@/context/LocaleContext";
 import { ThemeProvider } from "@/context/ThemeContext";
-import { AuthProvider } from "@/context/AuthContext";
 import NavigationSidebar from "@/components/NavigationSidebar";
 import SettingsDock from "@/components/SettingsDock";
 import Footer from "@/components/Footer";
@@ -48,21 +47,19 @@ export default async function LangLayout({
 
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <LocaleProvider lang={locale}>
-          <HtmlLang lang={locale} />
-          <JsonLd data={[personSchema(), webSiteSchema()]} />
-          {/* Replaced hardcoded pale-sky/gunmetal with tonal surface */}
-          <div className="min-h-screen bg-surface transition-colors duration-200">
-            <NavigationSidebar />
-            <SettingsDock />
-            <main className="transition-colors duration-200">
-              {children}
-            </main>
-            <Footer />
-          </div>
-        </LocaleProvider>
-      </AuthProvider>
+      <LocaleProvider lang={locale}>
+        <HtmlLang lang={locale} />
+        <JsonLd data={[personSchema(), webSiteSchema()]} />
+        {/* Replaced hardcoded pale-sky/gunmetal with tonal surface */}
+        <div className="min-h-screen bg-surface transition-colors duration-200">
+          <NavigationSidebar />
+          <SettingsDock />
+          <main className="transition-colors duration-200">
+            {children}
+          </main>
+          <Footer />
+        </div>
+      </LocaleProvider>
     </ThemeProvider>
   );
 }

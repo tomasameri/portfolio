@@ -8,7 +8,6 @@ import remarkWikiLink from 'remark-wiki-link';
 import { getPostBySlug } from '@/lib/services/blogService';
 import NewsletterToast from '@/components/NewsletterToast';
 import JsonLd from '@/components/JsonLd';
-import KeyTakeaways from '@/components/blog/KeyTakeaways';
 import SocialShareBar from '@/components/blog/SocialShareBar';
 import AuthorBioCard from '@/components/blog/AuthorBioCard';
 import { blogPostingSchema, breadcrumbSchema } from '@/lib/schema';
@@ -101,7 +100,7 @@ export default async function BlogPostPage({
           </h1>
           <Link
             href={`/${lang}/blog`}
-            className="text-cool-sky hover:text-cool-sky/80 transition-colors"
+            className="text-accent hover:text-on-surface transition-colors"
           >
             ← Volver al blog
           </Link>
@@ -124,7 +123,7 @@ export default async function BlogPostPage({
       />
       <Link
         href={`/${lang}/blog`}
-        className="text-cool-sky hover:text-cool-sky/80 transition-all mb-8 inline-flex items-center gap-2 group"
+        className="text-accent hover:text-on-surface transition-all mb-8 inline-flex items-center gap-2 group"
       >
         <span className="group-hover:-translate-x-1 transition-transform">←</span> Volver al blog
       </Link>
@@ -145,7 +144,7 @@ export default async function BlogPostPage({
           {post.tags?.map(tag => (
             <span
               key={tag}
-              className="px-3 py-1 bg-cool-sky/10 text-cool-sky text-[10px] font-bold uppercase tracking-wider rounded-lg border border-cool-sky/20"
+              className="px-3 py-1 bg-accent-container text-accent text-[10px] font-bold uppercase tracking-wider rounded-lg border border-accent/20"
             >
               {tag}
             </span>
@@ -174,17 +173,7 @@ export default async function BlogPostPage({
           )}
         </div>
 
-        {/* AI & Human Key Takeaways Summary Block */}
-        <KeyTakeaways excerpt={post.excerpt} isEs={lang === 'es'} />
-
-        {/* Top Social Share Bar */}
-        <SocialShareBar
-          title={post.title}
-          url={`${SITE_URL}/${lang}/blog/${post.slug}`}
-          isEs={lang === 'es'}
-        />
-
-        <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-display prose-headings:tracking-tight prose-a:text-cool-sky prose-img:rounded-3xl prose-pre:bg-gunmetal prose-pre:rounded-2xl shadow-cool-sky/5 my-12">
+        <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-display prose-headings:tracking-tight prose-a:text-accent prose-img:rounded-3xl prose-pre:bg-gunmetal prose-pre:rounded-2xl shadow-cool-sky/5 my-12">
           <ReactMarkdown
             remarkPlugins={[
               remarkGfm,

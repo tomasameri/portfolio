@@ -1,0 +1,127 @@
+/* Estilos exclusivos del panel de administración.
+   Vivían en globals.css, donde entraban en la hoja crítica de todas las
+   páginas públicas aunque solo el admin (editor markdown + grilla de cards)
+   los use. */
+
+@import "@uiw/react-md-editor/markdown-editor.css";
+
+/* ─── Editor markdown (@uiw/react-md-editor) ─── */
+.wmde-markdown {
+  background-color: var(--color-alice-blue) !important;
+  color: var(--color-gunmetal) !important;
+}
+
+.dark .wmde-markdown {
+  background-color: var(--color-gunmetal) !important;
+  color: var(--color-pale-sky) !important;
+}
+
+.wmde-markdown-editor {
+  border-radius: 0.75rem !important;
+  border: 1px solid rgba(214, 201, 201, 0.3) !important;
+  overflow: hidden;
+}
+
+.dark .wmde-markdown-editor {
+  border-color: rgba(199, 211, 221, 0.2) !important;
+  background-color: rgba(55, 57, 58, 0.5) !important;
+}
+
+.wmde-markdown-editor-textarea {
+  background-color: var(--color-alice-blue) !important;
+  color: var(--color-gunmetal) !important;
+  font-family: var(--font-anonymous-pro), monospace !important;
+}
+
+.dark .wmde-markdown-editor-textarea {
+  background-color: rgba(55, 57, 58, 0.5) !important;
+  color: var(--color-pale-sky) !important;
+}
+
+.wmde-markdown-editor-toolbar {
+  background-color: rgba(232, 238, 242, 0.9) !important;
+  border-bottom: 1px solid rgba(214, 201, 201, 0.3) !important;
+}
+
+.dark .wmde-markdown-editor-toolbar {
+  background-color: rgba(55, 57, 58, 0.8) !important;
+  border-bottom-color: rgba(199, 211, 221, 0.2) !important;
+}
+
+.wmde-markdown-editor-toolbar button {
+  color: var(--color-gunmetal) !important;
+}
+
+.dark .wmde-markdown-editor-toolbar button {
+  color: var(--color-pale-sky) !important;
+}
+
+.wmde-markdown-editor-toolbar button:hover {
+  background-color: rgba(119, 182, 234, 0.1) !important;
+}
+
+.dark .wmde-markdown-editor-toolbar button:hover {
+  background-color: rgba(119, 182, 234, 0.2) !important;
+}
+
+/* ─── React Grid Layout: drag and drop suave en tiempo real ─── */
+.react-grid-item {
+  /* El wrapper de RGL nunca debe tener transiciones de posición/transform
+     compitiendo con React-Draggable */
+  overflow: visible !important;
+  transition: transform 0.2s ease, width 0.2s ease, height 0.2s ease !important;
+  will-change: transform;
+}
+
+.react-grid-item.react-draggable-dragging {
+  /* Sin transición de posición durante el drag para movimiento en tiempo real */
+  transition: box-shadow 0.2s ease, z-index 0s, border 0.2s ease, opacity 0.2s ease !important;
+  transform: translateZ(20px) rotateX(5deg) rotateY(-5deg) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(119, 182, 234, 0.2) !important;
+  z-index: 100 !important;
+  opacity: 0.95;
+}
+
+.react-grid-item.react-draggable-dragging * {
+  pointer-events: none;
+}
+
+/* El handle de drag debe tener cursor move */
+.drag-handle {
+  cursor: move !important;
+}
+
+/* Prevenir drag en botones y controles - estos deben estar por encima del handle */
+.card-item-container > button,
+.card-item-container .size-selector-container {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  position: relative;
+  z-index: 50 !important;
+}
+
+/* El handle no debe capturar eventos de botones */
+.drag-handle button,
+.drag-handle .size-selector-container {
+  pointer-events: none !important;
+}
+
+/* Asegurar que botones dentro de card-item-container no sean draggables */
+.card-item-container button {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+/* Solo se ofrecen tamaños predeterminados: sin handles de resize */
+.react-grid-item > .react-resizable-handle {
+  display: none !important;
+}
+
+.bento-grid-preview .react-grid-item {
+  cursor: default !important;
+}
+
+/* Asegurar que el contenido de los items no se recorte */
+.react-grid-item > * {
+  overflow: visible;
+}
