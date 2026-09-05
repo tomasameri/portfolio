@@ -8,7 +8,6 @@ import remarkWikiLink from 'remark-wiki-link';
 import { getPostBySlug } from '@/lib/services/blogService';
 import NewsletterToast from '@/components/NewsletterToast';
 import JsonLd from '@/components/JsonLd';
-import KeyTakeaways from '@/components/blog/KeyTakeaways';
 import SocialShareBar from '@/components/blog/SocialShareBar';
 import AuthorBioCard from '@/components/blog/AuthorBioCard';
 import { blogPostingSchema, breadcrumbSchema } from '@/lib/schema';
@@ -173,16 +172,6 @@ export default async function BlogPostPage({
             </>
           )}
         </div>
-
-        {/* AI & Human Key Takeaways Summary Block */}
-        <KeyTakeaways excerpt={post.excerpt} isEs={lang === 'es'} />
-
-        {/* Top Social Share Bar */}
-        <SocialShareBar
-          title={post.title}
-          url={`${SITE_URL}/${lang}/blog/${post.slug}`}
-          isEs={lang === 'es'}
-        />
 
         <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-display prose-headings:tracking-tight prose-a:text-cool-sky prose-img:rounded-3xl prose-pre:bg-gunmetal prose-pre:rounded-2xl shadow-cool-sky/5 my-12">
           <ReactMarkdown
