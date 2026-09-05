@@ -5,12 +5,19 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   // Configuración para Appwrite Sites
   output: 'standalone',
+  // `hostname: '**'` dejaba a `/_next/image` como optimizador abierto: cualquiera
+  // podía pedir `tomasameri.com/_next/image?url=<imagen ajena>` y gastar CPU y
+  // ancho de banda del servidor sirviendo contenido de terceros desde el dominio
+  // propio. Se acota a los hosts que el sitio realmente usa.
+  //
+  // Para permitir un host nuevo (por ejemplo si pegás la URL de otro CDN en el
+  // formulario del admin), agregá una entrada más acá.
   images: {
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**',
-      },
+      // Portadas del blog: el propio formulario del admin sugiere Unsplash.
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      // Appwrite Storage, por si las imágenes pasan a subirse en vez de pegarse.
+      { protocol: 'https', hostname: 'nyc.cloud.appwrite.io', pathname: '/v1/storage/**' },
     ],
   },
   experimental: {

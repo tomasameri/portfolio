@@ -31,9 +31,11 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 lg:gap-12">
           {/* Brand & Mission Column */}
           <div className="md:col-span-2 space-y-4">
-            <h3 className="font-display font-bold text-2xl text-on-surface tracking-tight">
+            {/* No es un heading: el footer aparece después del h1/h2 de cada
+                página y un <h3> acá rompía el orden secuencial de encabezados. */}
+            <p className="font-display font-bold text-2xl text-on-surface tracking-tight">
               Tomas Ameri
-            </h3>
+            </p>
             <p className="font-body text-sm leading-relaxed text-on-surface-variant max-w-md">
               {isEs
                 ? 'Estudiante de Sistemas y constructor de productos digitales. Diseñando y escalando soluciones en la intersección de Inteligencia Artificial aplicada, automatización y marketplaces.'
@@ -47,10 +49,13 @@ export default function Footer() {
           </div>
 
           {/* Quick Navigation Links */}
-          <div className="space-y-4">
-            <h4 className="font-label text-xs uppercase tracking-widest text-on-surface font-bold">
+          <nav className="space-y-4" aria-labelledby="footer-nav-heading">
+            <p
+              id="footer-nav-heading"
+              className="font-label text-xs uppercase tracking-widest text-on-surface font-bold"
+            >
               {isEs ? 'Navegación' : 'Navigation'}
-            </h4>
+            </p>
             <ul className="space-y-2.5 font-body text-sm">
               <li>
                 <Link
@@ -93,13 +98,13 @@ export default function Footer() {
                 </Link>
               </li>
             </ul>
-          </div>
+          </nav>
 
           {/* Connect & Social Profiles */}
           <div className="space-y-4">
-            <h4 className="font-label text-xs uppercase tracking-widest text-on-surface font-bold">
+            <p className="font-label text-xs uppercase tracking-widest text-on-surface font-bold">
               {isEs ? 'Redes' : 'Connect'}
-            </h4>
+            </p>
             <div className="flex flex-wrap gap-3">
               {socialLinks.map((item) => {
                 const Icon = item.icon;

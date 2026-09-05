@@ -1,8 +1,7 @@
 // src/app/layout.tsx
 import type { Metadata } from 'next';
-import { Plus_Jakarta_Sans, Manrope, Space_Grotesk, Anonymous_Pro } from 'next/font/google';
+import { Plus_Jakarta_Sans, Manrope, Space_Grotesk } from 'next/font/google';
 import './globals.css';
-import { Providers } from './providers';
 import { SITE_URL, SITE_NAME, SITE_TITLE, SITE_DESCRIPTION, DEFAULT_LOCALE, LOCALES } from '@/lib/siteConfig';
 
 // ─── Editorial Design System Fonts ───────────────────────────────────────
@@ -27,13 +26,13 @@ const spaceGrotesk = Space_Grotesk({
   display: 'swap',
 });
 
-// Legacy font — kept for admin panel backward compatibility
-const anonymousPro = Anonymous_Pro({
-  weight: ['400', '700'],
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-anonymous-pro',
-});
+// Anonymous Pro (legacy, editor markdown) se carga solo en `/[lang]/admin`.
+// Mantenerla acá descargaba una cuarta familia en todas las páginas públicas
+// sin que ningún elemento visible la usara.
+
+// Aplica el tema antes del primer paint. Sin esto, ThemeProvider agrega la
+// clase `.dark` en un useEffect y la página parpadea de claro a oscuro.
+const THEME_INIT = `try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')}catch(e){}`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -91,14 +90,13 @@ export default function RootLayout({
   return (
     <html
       lang={DEFAULT_LOCALE}
-      className={`${plusJakarta.variable} ${manrope.variable} ${spaceGrotesk.variable} ${anonymousPro.variable}`}
+      className={`${plusJakarta.variable} ${manrope.variable} ${spaceGrotesk.variable}`}
       suppressHydrationWarning
     >
-      <body className="min-h-screen font-body">
-        <Providers>
-          {children}
-        </Providers>
-      </body>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
+      </head>
+      <body className="min-h-screen font-body">{children}</body>
     </html>
   );
 }

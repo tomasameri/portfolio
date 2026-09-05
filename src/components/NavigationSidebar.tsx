@@ -55,7 +55,7 @@ export default function NavigationSidebar() {
               title={item.label}
               className={`
                 relative flex items-center justify-center rounded-full text-sm sm:text-base font-label transition-colors duration-200 group
-                ${active ? 'text-white px-4 sm:px-5 py-2.5 sm:py-3' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/60 p-3 sm:p-3.5'}
+                ${active ? 'text-on-accent px-4 sm:px-5 py-2.5 sm:py-3' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/60 p-3 sm:p-3.5'}
               `}
             >
               {active && (

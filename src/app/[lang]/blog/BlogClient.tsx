@@ -28,7 +28,7 @@ export default function BlogClient({ posts }: { posts: BlogPost[] }) {
           </button>
           <button
             onClick={() => setViewMode('graph')}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wider transition-all duration-300 ${viewMode === 'graph' ? 'bg-white dark:bg-gunmetal/80 shadow-md text-cool-sky dark:text-cool-sky scale-100' : 'text-gunmetal/50 dark:text-pale-sky/50 hover:text-gunmetal hover:dark:text-alice-blue/80 scale-95 hover:bg-white/50 dark:hover:bg-gunmetal/30'}`}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wider transition-all duration-300 ${viewMode === 'graph' ? 'bg-white dark:bg-gunmetal/80 shadow-md text-accent scale-100' :'text-gunmetal/50 dark:text-pale-sky/50 hover:text-gunmetal hover:dark:text-alice-blue/80 scale-95 hover:bg-white/50 dark:hover:bg-gunmetal/30'}`}
           >
             <ShareIcon className="w-5 h-5" />
             Grafo Neural
@@ -65,13 +65,13 @@ export default function BlogClient({ posts }: { posts: BlogPost[] }) {
                     <div className="md:col-span-7 space-y-4">
                       <div className="flex flex-wrap gap-2">
                         {post.tags?.slice(0, 3).map(tag => (
-                          <span key={tag} className="text-[9px] font-black uppercase tracking-[0.2em] text-cool-sky/60">
+                          <span key={tag} className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">
                             {tag}
                           </span>
                         ))}
                       </div>
 
-                      <h2 className="text-3xl md:text-4xl font-display font-bold text-gunmetal dark:text-alice-blue group-hover:text-cool-sky transition-colors leading-tight">
+                      <h2 className="text-3xl md:text-4xl font-display font-bold text-gunmetal dark:text-alice-blue group-hover:text-accent transition-colors leading-tight">
                         {post.title}
                       </h2>
 
